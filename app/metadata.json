@@ -1,0 +1,6 @@
+{
+  "name": "Workflow Automation Builder",
+  "description": "An interactive visual workflow automation builder with modular triggers, actions, and node-level configurations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

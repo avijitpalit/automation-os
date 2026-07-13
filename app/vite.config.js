@@ -12,7 +12,7 @@ export default defineConfig({
     cors: {
       origin: 'http://helloworld.lvh.me',
     },
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:3000',
   },
   build: {
     outDir: '../assets/build',

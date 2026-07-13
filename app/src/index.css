@@ -36,3 +36,40 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+.toplevel_page_automation-os #wpfooter { display: none !important; }
+.toplevel_page_automation-os #wpbody-content { padding-bottom: 0; height: calc(100vh - 32px); }
+.toplevel_page_automation-os #automation-os-root { height: 100%; }
+
+#automation-os-root input[type="text"],
+#automation-os-root input[type="search"],
+#automation-os-root input[type="password"],
+#automation-os-root input[type="number"],
+#automation-os-root input[type="email"],
+#automation-os-root input[type="url"],
+#automation-os-root input[type="tel"],
+#automation-os-root textarea,
+#automation-os-root select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    color: #334155;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+#automation-os-root input:focus,
+#automation-os-root textarea:focus,
+#automation-os-root select:focus {
+    background-color: #ffffff;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+#automation-os-root #components-search { padding-left: 32px; }

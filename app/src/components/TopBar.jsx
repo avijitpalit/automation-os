@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { 
   RotateCcw, 
   RotateCw, 
@@ -12,22 +12,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
-interface TopBarProps {
-  title: string;
-  onTitleChange: (val: string) => void;
-  isActive: boolean;
-  onActiveToggle: () => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  onExecute: () => void;
-  isExecuting: boolean;
-  onSave: () => void;
-  isSaving: boolean;
-}
-
-export default function TopBar({
+function TopBar({
   title,
   onTitleChange,
   isActive,
@@ -40,7 +25,7 @@ export default function TopBar({
   isExecuting,
   onSave,
   isSaving
-}: TopBarProps) {
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [editVal, setEditVal] = useState(title);
   const [showPublishMenu, setShowPublishMenu] = useState(false);
@@ -243,3 +228,5 @@ export default function TopBar({
     </header>
   );
 }
+
+export default memo(TopBar);

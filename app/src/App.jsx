@@ -1,42 +1,38 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import TopBar from './components/TopBar';
-import LeftPanel from './components/LeftPanel';
-import Canvas from './components/Canvas';
-import PropertiesPanel from './components/PropertiesPanel';
+import TopBar from './components/TopBar.jsx';
+import LeftPanel from './components/LeftPanel.jsx';
+import Canvas from './components/Canvas.jsx';
+import PropertiesPanel from './components/PropertiesPanel.jsx';
 import { 
-  WorkflowNode, 
-  NodeType, 
-  SidebarItem, 
   INITIAL_NODES, 
-  SIDEBAR_ITEMS,
-  ExecutionLog 
-} from './types';
+  SIDEBAR_ITEMS
+} from './types.js';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertCircle, X, Sparkles, AlertTriangle } from 'lucide-react';
 
 export default function App() {
   // Primary States
-  const [nodes, setNodes] = useState<WorkflowNode[]>(INITIAL_NODES);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>('node-3'); // defaults to AI Agent node 3 on load
-  const [scale, setScale] = useState<number>(0.9); // zoom level
-  const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 40, y: -20 }); // pan coordinates
+  const [nodes, setNodes] = useState(INITIAL_NODES);
+  const [selectedNodeId, setSelectedNodeId] = useState(null); // defaults to no selection on load
+  const [scale, setScale] = useState(0.9); // zoom level
+  const [panOffset, setPanOffset] = useState({ x: 40, y: -20 }); // pan coordinates
   
   // Header state
-  const [isActive, setIsActive] = useState<boolean>(true);
-  const [workflowTitle, setWorkflowTitle] = useState<string>('High Value Order Automation');
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [saveSuccessBanner, setSaveSuccessBanner] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState(true);
+  const [workflowTitle, setWorkflowTitle] = useState('High Value Order Automation');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccessBanner, setSaveSuccessBanner] = useState(false);
 
   // Undo/Redo stack state
-  const [undoStack, setUndoStack] = useState<WorkflowNode[][]>([]);
-  const [redoStack, setRedoStack] = useState<WorkflowNode[][]>([]);
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
 
   // Execution simulation states
-  const [isExecuting, setIsExecuting] = useState<boolean>(false);
-  const [executionStep, setExecutionStep] = useState<number>(0);
-  const [canvasTab, setCanvasTab] = useState<'canvas' | 'logs' | 'history' | 'versions'>('canvas');
-  const [logs, setLogs] = useState<ExecutionLog[]>([]);
-  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionStep, setExecutionStep] = useState(0);
+  const [canvasTab, setCanvasTab] = useState('canvas');
+  const [logs, setLogs] = useState([]);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Auto close notifications helper
   useEffect(() => {
@@ -54,26 +50,38 @@ export default function App() {
   }, [showConfetti]);
 
   // Helper to record previous states for Undo functionality
-  const saveToHistory = useCallback((currentNodes: WorkflowNode[]) => {
+  const saveToHistory = useCallback((currentNodes) => {
     setUndoStack(prev => [...prev, JSON.parse(JSON.stringify(currentNodes))]);
     setRedoStack([]); // Clear redo stack on manual edits
   }, []);
 
   const handleUndo = useCallback(() => {
-    if (undoStack.length === 0) return;
-    const previous = undoStack[undoStack.length - 1];
-    setRedoStack(prev => [...prev, JSON.parse(JSON.stringify(nodes))]);
-    setNodes(previous);
-    setUndoStack(prev => prev.slice(0, -1));
-  }, [nodes, undoStack]);
+    setUndoStack(prevUndo => {
+      if (prevUndo.length === 0) return prevUndo;
+      const previous = prevUndo[prevUndo.length - 1];
+      
+      setNodes(currentNodes => {
+        setRedoStack(prevRedo => [...prevRedo, JSON.parse(JSON.stringify(currentNodes))]);
+        return previous;
+      });
+      
+      return prevUndo.slice(0, -1);
+    });
+  }, []);
 
   const handleRedo = useCallback(() => {
-    if (redoStack.length === 0) return;
-    const next = redoStack[redoStack.length - 1];
-    setUndoStack(prev => [...prev, JSON.parse(JSON.stringify(nodes))]);
-    setNodes(next);
-    setRedoStack(prev => prev.slice(0, -1));
-  }, [nodes, redoStack]);
+    setRedoStack(prevRedo => {
+      if (prevRedo.length === 0) return prevRedo;
+      const next = prevRedo[prevRedo.length - 1];
+      
+      setNodes(currentNodes => {
+        setUndoStack(prevUndo => [...prevUndo, JSON.parse(JSON.stringify(currentNodes))]);
+        return next;
+      });
+      
+      return prevRedo.slice(0, -1);
+    });
+  }, []);
 
   // Handle manual saving action
   const handleSave = useCallback(() => {
@@ -85,74 +93,114 @@ export default function App() {
   }, []);
 
   // Update selected node data
-  const handleNodeChange = useCallback((nodeId: string, updatedData: any) => {
-    saveToHistory(nodes);
-    setNodes(prev =>
-      prev.map(n => (n.id === nodeId ? { ...n, data: updatedData } : n))
-    );
-  }, [nodes, saveToHistory]);
+  const handleNodeChange = useCallback((nodeId, updatedData) => {
+    setNodes(prev => {
+      saveToHistory(prev);
+      return prev.map(n => (n.id === nodeId ? { ...n, data: updatedData } : n));
+    });
+  }, [saveToHistory]);
 
   // Dragging a node in the visual designer updates coordinates
-  const handleNodeDrag = useCallback((nodeId: string, x: number, y: number) => {
+  const handleNodeDrag = useCallback((nodeId, x, y) => {
     setNodes(prev =>
       prev.map(n => (n.id === nodeId ? { ...n, x, y } : n))
     );
   }, []);
 
   // Adding a node via dropping it from Sidebar
-  const handleDropNode = useCallback((type: NodeType, x: number, y: number) => {
-    saveToHistory(nodes);
-    
-    // Find item configuration template from sidebar items
-    const template = SIDEBAR_ITEMS.find(item => item.id === type) || SIDEBAR_ITEMS[0];
-    const nextNumber = Math.max(...nodes.map(n => n.number)) + 1;
-    const newNodeId = `node-${Date.now()}`;
+  const handleDropNode = useCallback((type, x, y) => {
+    setNodes(prev => {
+      saveToHistory(prev);
+      
+      // Find item configuration template from sidebar items
+      const template = SIDEBAR_ITEMS.find(item => item.id === type) || SIDEBAR_ITEMS[0];
+      const nextNumber = prev.length > 0 ? Math.max(...prev.map(n => n.number)) + 1 : 1;
+      const newNodeId = `node-${Date.now()}`;
 
-    const newNode: WorkflowNode = {
-      id: newNodeId,
-      type: type,
-      title: template.title,
-      subtitle: template.subtitle,
-      number: nextNumber,
-      status: 'idle',
-      x,
-      y,
-      data: {
-        prompt: 'Analyze or process this payload item...',
-        temperature: 0.4,
-        model: 'gemini-3.5-flash',
-        recipient: '{{customer.email}}',
-        subject: 'New Update Notification',
-        channel: '#general',
-        message: 'Hello Team, notification processed.'
-      }
-    };
+      const newNode = {
+        id: newNodeId,
+        type: type,
+        title: template.title,
+        subtitle: template.subtitle,
+        number: nextNumber,
+        status: 'idle',
+        x,
+        y,
+        data: {
+          prompt: 'Analyze or process this payload item...',
+          temperature: 0.4,
+          model: 'gemini-3.5-flash',
+          recipient: '{{customer.email}}',
+          subject: 'New Update Notification',
+          channel: '#general',
+          message: 'Hello Team, notification processed.'
+        }
+      };
 
-    setNodes(prev => [...prev, newNode]);
-    setSelectedNodeId(newNodeId); // automatically inspect the newly dropped node
-  }, [nodes, saveToHistory]);
+      setSelectedNodeId(newNodeId); // automatically inspect the newly dropped node
+      return [...prev, newNode];
+    });
+  }, [saveToHistory]);
 
   // Adding a node via clicking (+) on Sidebar items
-  const handleAddItem = useCallback((type: NodeType) => {
-    // Generate positions near the center/bottom of the current view coordinates
-    const lastNodeY = Math.max(...nodes.map(n => n.y));
-    const nextX = 430;
-    const nextY = lastNodeY + 120;
-    handleDropNode(type, nextX, nextY);
-  }, [nodes, handleDropNode]);
+  const handleAddItem = useCallback((type) => {
+    setNodes(prev => {
+      const lastNodeY = prev.length > 0 ? Math.max(...prev.map(n => n.y)) : 100;
+      const nextX = 430;
+      const nextY = lastNodeY + 120;
+      
+      saveToHistory(prev);
+      
+      // Find item configuration template from sidebar items
+      const template = SIDEBAR_ITEMS.find(item => item.id === type) || SIDEBAR_ITEMS[0];
+      const nextNumber = prev.length > 0 ? Math.max(...prev.map(n => n.number)) + 1 : 1;
+      const newNodeId = `node-${Date.now()}`;
+
+      const newNode = {
+        id: newNodeId,
+        type: type,
+        title: template.title,
+        subtitle: template.subtitle,
+        number: nextNumber,
+        status: 'idle',
+        x: nextX,
+        y: nextY,
+        data: {
+          prompt: 'Analyze or process this payload item...',
+          temperature: 0.4,
+          model: 'gemini-3.5-flash',
+          recipient: '{{customer.email}}',
+          subject: 'New Update Notification',
+          channel: '#general',
+          message: 'Hello Team, notification processed.'
+        }
+      };
+
+      setSelectedNodeId(newNodeId); // automatically inspect the newly dropped node
+      return [...prev, newNode];
+    });
+  }, [saveToHistory]);
 
   // Deleting custom nodes
-  const handleDeleteNode = useCallback((nodeId: string) => {
+  const handleDeleteNode = useCallback((nodeId) => {
     // Prevent deleting system nodes shown in screenshot for layout consistency
     if (['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6', 'node-7', 'node-8', 'node-9'].includes(nodeId)) {
       return;
     }
-    saveToHistory(nodes);
-    setNodes(prev => prev.filter(n => n.id !== nodeId));
-    if (selectedNodeId === nodeId) {
-      setSelectedNodeId(null);
-    }
-  }, [nodes, selectedNodeId, saveToHistory]);
+    setNodes(prev => {
+      saveToHistory(prev);
+      return prev.filter(n => n.id !== nodeId);
+    });
+    setSelectedNodeId(prev => prev === nodeId ? null : prev);
+  }, [saveToHistory]);
+
+  const handleActiveToggle = useCallback(() => {
+    setNodes(prev => {
+      saveToHistory(prev);
+      return prev;
+    });
+    setIsActive(prev => !prev);
+  }, [saveToHistory]);
 
   // Run Simulated Workflow Execution Pipeline
   const handleExecuteWorkflow = useCallback(() => {
@@ -170,7 +218,7 @@ export default function App() {
     const now = () => new Date().toLocaleTimeString();
 
     // Staged sequence of workflow steps
-    const initialLogs: ExecutionLog[] = [
+    const initialLogs = [
       {
         timestamp: now(),
         nodeId: 'node-1',
@@ -191,7 +239,7 @@ export default function App() {
         n.id === 'node-2' ? { ...n, status: 'running' } : n
       ));
       setLogs(prev => [
-        ...prev.map(l => l.nodeId === 'node-1' ? { ...l, status: 'success' as const, message: 'Webhook received. Extracted WooCommerce payload details (total price ₹12,450).', durationMs: 1120 } : l),
+        ...prev.map(l => l.nodeId === 'node-1' ? { ...l, status: 'success', message: 'Webhook received. Extracted WooCommerce payload details (total price ₹12,450).', durationMs: 1120 } : l),
         {
           timestamp: now(),
           nodeId: 'node-2',
@@ -210,7 +258,7 @@ export default function App() {
           n.id === 'node-3' ? { ...n, status: 'running' } : n
         ));
         setLogs(prev => [
-          ...prev.map(l => l.nodeId === 'node-2' ? { ...l, status: 'success' as const, message: 'Condition resolved to TRUE (₹12,450 > ₹5,000). Routing flow down the TRUE branch.', durationMs: 840 } : l),
+          ...prev.map(l => l.nodeId === 'node-2' ? { ...l, status: 'success', message: 'Condition resolved to TRUE (₹12,450 > ₹5,000). Routing flow down the TRUE branch.', durationMs: 840 } : l),
           {
             timestamp: now(),
             nodeId: 'node-3',
@@ -229,7 +277,7 @@ export default function App() {
             n.id === 'node-4' ? { ...n, status: 'running' } : n
           ));
           setLogs(prev => [
-            ...prev.map(l => l.nodeId === 'node-3' ? { ...l, status: 'success' as const, message: 'Gemini inference finished successfully. Intent identified: high_value_purchase (92% confidence). Suggested Upsell items appended to properties.', durationMs: 1540 } : l),
+            ...prev.map(l => l.nodeId === 'node-3' ? { ...l, status: 'success', message: 'Gemini inference finished successfully. Intent identified: high_value_purchase (92% confidence). Suggested Upsell items appended to properties.', durationMs: 1540 } : l),
             {
               timestamp: now(),
               nodeId: 'node-4',
@@ -248,7 +296,7 @@ export default function App() {
               n.id === 'node-5' ? { ...n, status: 'running' } : n
             ));
             setLogs(prev => [
-              ...prev.map(l => l.nodeId === 'node-4' ? { ...l, status: 'success' as const, message: 'Thank You mail dispatched. Send status: success. Queue SMTP ID: em_wc_9842.', durationMs: 980 } : l),
+              ...prev.map(l => l.nodeId === 'node-4' ? { ...l, status: 'success', message: 'Thank You mail dispatched. Send status: success. Queue SMTP ID: em_wc_9842.', durationMs: 980 } : l),
               {
                 timestamp: now(),
                 nodeId: 'node-5',
@@ -267,7 +315,7 @@ export default function App() {
                 n.id === 'node-6' ? { ...n, status: 'running' } : n
               ));
               setLogs(prev => [
-                ...prev.map(l => l.nodeId === 'node-5' ? { ...l, status: 'success' as const, message: 'Google Sheets table row added successfully. Sync completed for row range A12:D12.', durationMs: 1150 } : l),
+                ...prev.map(l => l.nodeId === 'node-5' ? { ...l, status: 'success', message: 'Google Sheets table row added successfully. Sync completed for row range A12:D12.', durationMs: 1150 } : l),
                 {
                   timestamp: now(),
                   nodeId: 'node-6',
@@ -286,7 +334,7 @@ export default function App() {
                   n.id === 'node-9' ? { ...n, status: 'running' } : n
                 ));
                 setLogs(prev => [
-                  ...prev.map(l => l.nodeId === 'node-6' ? { ...l, status: 'success' as const, message: 'Slack incoming webhook trigger published. Message delivered.', durationMs: 910 } : l),
+                  ...prev.map(l => l.nodeId === 'node-6' ? { ...l, status: 'success', message: 'Slack incoming webhook trigger published. Message delivered.', durationMs: 910 } : l),
                   {
                     timestamp: now(),
                     nodeId: 'node-9',
@@ -304,7 +352,7 @@ export default function App() {
                     n.id === 'node-9' ? { ...n, status: 'success' } : n
                   ));
                   setLogs(prev => [
-                    ...prev.map(l => l.nodeId === 'node-9' ? { ...l, status: 'success' as const, message: 'WooCommerce Order internal notes compiled successfully.', durationMs: 1200 } : l),
+                    ...prev.map(l => l.nodeId === 'node-9' ? { ...l, status: 'success', message: 'WooCommerce Order internal notes compiled successfully.', durationMs: 1200 } : l),
                     {
                       timestamp: now(),
                       nodeId: 'workflow',
@@ -336,16 +384,13 @@ export default function App() {
   const selectedNode = nodes.find(n => n.id === selectedNodeId) || null;
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-slate-50 font-sans relative">
+    <div className="h-full w-full flex flex-col overflow-hidden bg-slate-50 font-sans relative">
       {/* Visual top bar banner */}
       <TopBar
         title={workflowTitle}
         onTitleChange={setWorkflowTitle}
         isActive={isActive}
-        onActiveToggle={() => {
-          saveToHistory(nodes);
-          setIsActive(!isActive);
-        }}
+        onActiveToggle={handleActiveToggle}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={undoStack.length > 0}

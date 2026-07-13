@@ -15,27 +15,7 @@ import {
   Sparkles,
   AlertCircle
 } from 'lucide-react';
-import { WorkflowNode, NodeType, SidebarItem } from '../types';
-import { getSidebarIcon } from './LeftPanel';
-
-interface CanvasProps {
-  nodes: WorkflowNode[];
-  selectedNodeId: string | null;
-  onSelectNode: (id: string | null) => void;
-  onNodeDrag: (id: string, x: number, y: number) => void;
-  onDropNode: (type: NodeType, x: number, y: number) => void;
-  onDeleteNode: (id: string) => void;
-  scale: number;
-  setScale: (s: number) => void;
-  panOffset: { x: number; y: number };
-  setPanOffset: (offset: { x: number; y: number }) => void;
-  isExecuting: boolean;
-  executionStep: number;
-  onExecute: () => void;
-  canvasTab: 'canvas' | 'logs' | 'history' | 'versions';
-  setCanvasTab: (tab: 'canvas' | 'logs' | 'history' | 'versions') => void;
-  logs: any[];
-}
+import { getSidebarIcon } from './LeftPanel.jsx';
 
 export default function Canvas({
   nodes,
@@ -54,24 +34,26 @@ export default function Canvas({
   canvasTab,
   setCanvasTab,
   logs
-}: CanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+}) {
+  const containerRef = useRef(null);
   const [panToolActive, setPanToolActive] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const [dragNodeId, setDragNodeId] = useState<string | null>(null);
+  const [dragNodeId, setDragNodeId] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [hoveredNodeId, setHoveredNodeId] = useState(null);
+  const dragStartMouseRef = useRef({ x: 0, y: 0 });
+  const hasDraggedRef = useRef(false);
 
   // Key listener for spacebar to toggle pan tool
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if (e.code === 'Space' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
         e.preventDefault();
         setPanToolActive(true);
       }
     };
-    const handleKeyUp = (e: KeyboardEvent) => {
+    const handleKeyUp = (e) => {
       if (e.code === 'Space') {
         setPanToolActive(false);
       }
@@ -83,6 +65,46 @@ export default function Canvas({
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
+
+  // Scroll wheel zooming towards mouse pointer
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      
+      const rect = container.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Determine zoom direction and factor
+      const zoomFactor = 1.08;
+      let newScale = scale;
+      if (e.deltaY < 0) {
+        // Zoom in
+        newScale = Math.min(1.8, scale * zoomFactor);
+      } else {
+        // Zoom out
+        newScale = Math.max(0.4, scale / zoomFactor);
+      }
+
+      if (newScale === scale) return;
+
+      // Zoom towards mouse cursor:
+      // Formula: newOffset = mouse - (mouse - oldOffset) * (newScale / oldScale)
+      const newPanX = mouseX - (mouseX - panOffset.x) * (newScale / scale);
+      const newPanY = mouseY - (mouseY - panOffset.y) * (newScale / scale);
+
+      setScale(newScale);
+      setPanOffset({ x: newPanX, y: newPanY });
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, [scale, panOffset, setScale, setPanOffset]);
 
   // Zoom Operations
   const handleZoomIn = () => setScale(Math.min(1.5, scale + 0.1));
@@ -119,11 +141,11 @@ export default function Canvas({
   };
 
   // Drag and Drop sidebar drop handler
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     const type = e.dataTransfer.getData('application/reactflow-type');
     if (!type) return;
@@ -138,24 +160,31 @@ export default function Canvas({
     const canvasX = (mouseX - panOffset.x) / scale;
     const canvasY = (mouseY - panOffset.y) / scale;
 
-    onDropNode(type as NodeType, Math.round(canvasX - 115), Math.round(canvasY - 35));
+    onDropNode(type, Math.round(canvasX - 115), Math.round(canvasY - 35));
   };
 
   // Canvas Mouse interactions
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (panToolActive || e.button === 1 || e.target === containerRef.current || (e.target as HTMLElement).id === 'grid-overlay') {
+  const handleMouseDown = (e) => {
+    if (panToolActive || e.button === 1 || e.target === containerRef.current || e.target.id === 'grid-overlay') {
       setIsPanning(true);
       setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e) => {
     if (isPanning) {
       setPanOffset({
         x: e.clientX - panStart.x,
         y: e.clientY - panStart.y
       });
     } else if (dragNodeId) {
+      // Check if mouse moved enough to be considered a drag
+      const dx = e.clientX - dragStartMouseRef.current.x;
+      const dy = e.clientY - dragStartMouseRef.current.y;
+      if (Math.hypot(dx, dy) > 3) {
+        hasDraggedRef.current = true;
+      }
+
       // Calculate new node coordinates adjusting for zoom scale
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
@@ -170,16 +199,22 @@ export default function Canvas({
   };
 
   const handleMouseUp = () => {
+    if (dragNodeId && !hasDraggedRef.current) {
+      // It was a click, not a drag!
+      onSelectNode(dragNodeId);
+    }
     setIsPanning(false);
     setDragNodeId(null);
   };
 
   // Node Drag Handlers
-  const handleNodeMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
+  const handleNodeMouseDown = (e, node) => {
     if (panToolActive) return;
     e.stopPropagation();
-    onSelectNode(node.id);
+    
     setDragNodeId(node.id);
+    dragStartMouseRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
 
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -198,10 +233,10 @@ export default function Canvas({
 
   // Custom Step Connection Drawing helper
   const drawStepPath = (
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
+    fromX,
+    fromY,
+    toX,
+    toY,
     split = false,
     isTruePath = false,
     isActive = false,
@@ -261,7 +296,7 @@ export default function Canvas({
 
   // Render SVG Connections
   const renderConnections = () => {
-    const paths: React.ReactNode[] = [];
+    const paths = [];
     
     const node1 = nodes.find(n => n.id === 'node-1');
     const node2 = nodes.find(n => n.id === 'node-2');
@@ -367,7 +402,7 @@ export default function Canvas({
   };
 
   // Node Color Maps
-  const getNodeBorderColor = (node: WorkflowNode) => {
+  const getNodeBorderColor = (node) => {
     if (selectedNodeId === node.id) {
       switch (node.type) {
         case 'woocommerce': return 'border-violet-500 shadow-active ring-1 ring-violet-500/20';
@@ -382,7 +417,7 @@ export default function Canvas({
     return 'border-slate-200/90 hover:border-slate-300';
   };
 
-  const getNodeIconStyles = (type: NodeType) => {
+  const getNodeIconStyles = (type) => {
     switch (type) {
       case 'woocommerce': return 'bg-violet-50 text-violet-600 border-violet-100';
       case 'condition': return 'bg-amber-50 text-amber-600 border-amber-100';
@@ -484,7 +519,7 @@ export default function Canvas({
           className="absolute origin-top-left z-10"
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${scale})`,
-            transition: isPanning ? 'none' : 'transform 0.1s ease-out',
+            transition: 'none',
             width: '2000px',
             height: '2000px'
           }}
@@ -592,12 +627,12 @@ export default function Canvas({
                   
                   {/* Title and Subtitle */}
                   <div className="min-w-0">
-                    <h3 className="text-xs font-bold text-slate-800 tracking-tight flex items-center space-x-1 truncate">
+                    <div className="text-xs font-bold text-slate-800 tracking-tight flex items-center space-x-1 truncate">
                       <span>{node.number}. {node.title}</span>
-                    </h3>
-                    <p className="text-[10px] text-slate-400 font-medium truncate">
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-medium truncate">
                       {node.subtitle}
-                    </p>
+                    </div>
                   </div>
                 </div>
 

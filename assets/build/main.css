@@ -1,2 +1,7 @@
 .aos-wrap{color:#1d2327;max-width:1200px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif}.aos-header{border-bottom:1px solid #dcdcde;margin-bottom:24px;padding:20px 0}.aos-header h1{margin:0;font-size:23px;font-weight:600}.aos-content{min-height:300px}#automation-os-root *{box-sizing:border-box}
 /*$vite$:1*/
+
+#automation-os-root p { margin: initial; }
+.toplevel_page_automation-os #wpfooter {
+    display: none !important;
+}

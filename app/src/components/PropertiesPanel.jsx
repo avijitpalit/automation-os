@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { 
   X, 
   HelpCircle, 
@@ -18,20 +18,13 @@ import {
   Terminal,
   ExternalLink
 } from 'lucide-react';
-import { WorkflowNode } from '../types';
 
-interface PropertiesPanelProps {
-  node: WorkflowNode;
-  onNodeChange: (id: string, updatedData: any) => void;
-  onClose: () => void;
-}
-
-export default function PropertiesPanel({
+function PropertiesPanel({
   node,
   onNodeChange,
   onClose
-}: PropertiesPanelProps) {
-  const [activeTab, setActiveTab] = useState<'setup' | 'input' | 'output' | 'settings'>('setup');
+}) {
+  const [activeTab, setActiveTab] = useState('setup');
   const [isTesting, setIsTesting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [testSuccess, setTestSuccess] = useState(true);
@@ -62,7 +55,7 @@ export default function PropertiesPanel({
     setCopied(false);
   }, [node]);
 
-  const handleSaveData = (key: string, value: any) => {
+  const handleSaveData = (key, value) => {
     onNodeChange(node.id, {
       ...node.data,
       [key]: value
@@ -87,14 +80,14 @@ export default function PropertiesPanel({
     }, 1500);
   };
 
-  const handleCopyOutput = (text: string) => {
+  const handleCopyOutput = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   // Substitute mustache bracket tags for nice visual mockup displays
-  const renderVariablesMock = (text: string) => {
+  const renderVariablesMock = (text) => {
     if (!text) return '';
     return text
       .replace(/\{\{customer\.name\}\}/g, 'Aman K.')
@@ -118,7 +111,7 @@ export default function PropertiesPanel({
               <select
                 value={node.data?.event || 'order.created'}
                 onChange={(e) => handleSaveData('event', e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 p-2.5 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 p-2.5 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
               >
                 <option value="order.created">Order Created</option>
                 <option value="order.updated">Order Updated</option>
@@ -566,7 +559,7 @@ export default function PropertiesPanel({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-600">
-                    {(node.data?.columns || []).map((col: any, idx: number) => (
+                    {(node.data?.columns || []).map((col, idx) => (
                       <tr key={`col-${idx}`}>
                         <td className="p-2 font-mono font-medium text-slate-700">{col.key}</td>
                         <td className="p-2 text-indigo-600 font-mono text-[10px]">{col.value}</td>
@@ -682,7 +675,7 @@ export default function PropertiesPanel({
 
       {/* Selector Tabs (Setup / Input / Output / Settings) */}
       <div className="flex items-center border-b border-slate-200 bg-slate-50 px-3 shrink-0">
-        {(['setup', 'input', 'output', 'settings'] as const).map((tab) => (
+        {['setup', 'input', 'output', 'settings'].map((tab) => (
           <button
             id={`tab-inspect-${tab}`}
             key={tab}
@@ -799,3 +792,5 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
+export default memo(PropertiesPanel);
