@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  /* You can add custom colors or theme expansions here if needed */
+}
+
+/* * CRUCIAL FOR WORDPRESS: 
+ * Tailwind v4 applies a global background color and resets font sizes on the body element.
+ * We must scope the resets back to your app wrapper so your plugin UI looks clean 
+ * without breaking the outer WordPress admin menu formatting layout.
+ */
+#automation-os-root {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}

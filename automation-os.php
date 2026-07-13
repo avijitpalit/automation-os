@@ -48,6 +48,14 @@ add_action( 'admin_menu', 'aos_register_admin_menu' );
  */
 function aos_render_admin_page() {
 	?>
+	<style>
+		#wpcontent {
+			padding-left: 0 !important;
+		}
+		.rtl #wpcontent {
+			padding-right: 0 !important;
+		}
+	</style>
 	<div id="automation-os-root"></div>
 	<?php
 }
@@ -112,14 +120,14 @@ function aos_print_dev_scripts( $hook ) {
 		function () {
 			?>
 			<script type="module">
-				import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+				import RefreshRuntime from 'http://localhost:3000/@react-refresh'
 				RefreshRuntime.injectIntoGlobalHook(window)
 				window.$RefreshReg$ = () => {}
 				window.$RefreshSig$ = () => (type) => type
 				window.__vite_plugin_react_preamble_installed__ = true
 			</script>
-			<script type="module" src="http://localhost:5173/@vite/client"></script>
-			<script type="module" src="http://localhost:5173/src/main.jsx"></script>
+			<script type="module" src="http://localhost:3000/@vite/client"></script>
+			<script type="module" src="http://localhost:3000/src/main.jsx"></script>
 			<?php
 		}
 	);
