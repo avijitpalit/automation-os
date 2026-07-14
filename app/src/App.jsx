@@ -3,6 +3,7 @@ import TopBar from './components/TopBar.jsx';
 import LeftPanel from './components/LeftPanel.jsx';
 import Canvas from './components/Canvas.jsx';
 import PropertiesPanel from './components/PropertiesPanel.jsx';
+import ArchiveView from './components/ArchiveView.jsx';
 import { 
   INITIAL_NODES, 
   SIDEBAR_ITEMS
@@ -11,8 +12,260 @@ import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertCircle, X, Sparkles, AlertTriangle } from 'lucide-react';
 
 export default function App() {
+  // Navigation and Workflows States
+  const [currentView, setCurrentView] = useState('archive'); // 'archive' | 'editor'
+  const [currentWorkflowId, setCurrentWorkflowId] = useState(null);
+  
+  // Pre-populated templates for visual simulation. New custom creations are starting completely empty!
+  const [workflows, setWorkflows] = useState([
+    {
+      id: 'wf-1',
+      title: 'High Value Order Automation',
+      description: 'Evaluates WooCommerce cart value threshold and triggers email/Slack updates with real-time AI classification.',
+      isActive: true,
+      createdDate: 'Jul 12, 2026',
+      lastRun: '12 mins ago',
+      successRate: '98.5%',
+      nodes: [
+        {
+          id: 'node-1',
+          type: 'woocommerce',
+          title: 'WooCommerce',
+          subtitle: 'Order Created',
+          number: 1,
+          status: 'success',
+          x: 430,
+          y: 40,
+          data: {
+            storeUrl: 'https://my-woocommerce-shop.com',
+            event: 'order.created',
+            credentials: 'Shop Admin Key (***-***)'
+          }
+        },
+        {
+          id: 'node-2',
+          type: 'condition',
+          title: 'Condition',
+          subtitle: 'Cart Total > ₹5,000',
+          number: 2,
+          status: 'success',
+          x: 430,
+          y: 160,
+          data: {
+            field: 'cart.total_price',
+            operator: 'greater_than',
+            value: '5000',
+            currency: 'INR'
+          }
+        },
+        {
+          id: 'node-3',
+          type: 'ai-agent',
+          title: 'AI Agent',
+          subtitle: 'Analyze Order',
+          number: 3,
+          status: 'success',
+          x: 180,
+          y: 330,
+          data: {
+            agentName: 'Order Analysis Agent',
+            prompt: 'Analyze this order and extract customer intent, product category, and suggest upsell products.',
+            model: 'gemini-3.5-flash',
+            temperature: 0.3,
+            testOutput: {
+              intent: 'high_value_purchase',
+              customer_type: 'new_customer',
+              category: 'electronics',
+              recommended_upsell: [
+                'extended_warranty',
+                'wireless_earbuds',
+                'laptop_bag'
+              ],
+              confidence: 0.92
+            }
+          }
+        },
+        {
+          id: 'node-4',
+          type: 'email',
+          title: 'Email',
+          subtitle: 'Send Thank You Email',
+          number: 4,
+          status: 'success',
+          x: 180,
+          y: 450,
+          data: {
+            recipient: '{{customer.email}}',
+            subject: 'Thank you for your order! - #{{order.id}}',
+            sender: 'sales@my-shop.com',
+            body: 'Hi {{customer.first_name}},\n\nThank you so much for your purchase of ₹{{order.total}}! We are preparing your order and will send tracking info soon.'
+          }
+        },
+        {
+          id: 'node-5',
+          type: 'google-sheets',
+          title: 'Google Sheets',
+          subtitle: 'Add Order to Sheet',
+          number: 5,
+          status: 'success',
+          x: 180,
+          y: 570,
+          data: {
+            spreadsheetId: 'spreadsheet_high_value_orders_2026',
+            sheetName: 'Sheet1',
+            columns: [
+              { key: 'OrderID', value: '{{order.id}}' },
+              { key: 'Customer', value: '{{customer.name}}' },
+              { key: 'Total', value: '{{order.total}}' },
+              { key: 'AI_Intent', value: '{{node3.intent}}' }
+            ]
+          }
+        },
+        {
+          id: 'node-6',
+          type: 'slack',
+          title: 'Slack',
+          subtitle: 'Notify Sales Team',
+          number: 6,
+          status: 'success',
+          x: 180,
+          y: 690,
+          data: {
+            channel: '#sales-alerts',
+            message: '🚀 *New High Value Order!* \nOrder #{{order.id}} by {{customer.name}} for *₹{{order.total}}*.\nAI Insights: Customer intent is *{{node3.intent}}* ({{node3.confidence}} confidence).'
+          }
+        },
+        {
+          id: 'node-7',
+          type: 'delay',
+          title: 'Delay',
+          subtitle: 'Wait 24 Hours',
+          number: 7,
+          status: 'idle',
+          x: 680,
+          y: 330,
+          data: {
+            duration: '24',
+            unit: 'hours'
+          }
+        },
+        {
+          id: 'node-8',
+          type: 'email',
+          title: 'Email',
+          subtitle: 'Send Reminder Email',
+          number: 8,
+          status: 'idle',
+          x: 680,
+          y: 450,
+          data: {
+            recipient: '{{customer.email}}',
+            subject: 'Complete your checkout!',
+            sender: 'reminders@my-shop.com',
+            body: 'Hi {{customer.first_name}},\n\nWe noticed you didn\'t finish checking out. Don\'t miss out on your items!'
+          }
+        },
+        {
+          id: 'node-9',
+          type: 'update-order',
+          title: 'Update Order',
+          subtitle: 'Add Order Note',
+          number: 9,
+          status: 'idle',
+          x: 430,
+          y: 810,
+          data: {
+            orderId: '{{order.id}}',
+            note: 'High-value flow processed. AI intent: {{node3.intent}}. Alert dispatched to Slack and sales notified.',
+            isCustomerNote: false
+          }
+        }
+      ]
+    },
+    {
+      id: 'wf-2',
+      title: 'Customer Onboarding Sequence',
+      description: 'Triggers on Form submission, routes introductory welcome kit emails, and schedules custom delay segments.',
+      isActive: true,
+      createdDate: 'Jul 10, 2026',
+      lastRun: '1 hour ago',
+      successRate: '100%',
+      nodes: [
+        {
+          id: 'node-101',
+          type: 'form',
+          title: 'Form',
+          subtitle: 'Onboarding Submit',
+          number: 1,
+          status: 'success',
+          x: 430,
+          y: 40,
+          data: {
+            formId: 'onboarding-form-2026',
+            title: 'New Signup Form'
+          }
+        },
+        {
+          id: 'node-102',
+          type: 'email',
+          title: 'Email',
+          subtitle: 'Send Welcome Kit',
+          number: 2,
+          status: 'success',
+          x: 430,
+          y: 180,
+          data: {
+            recipient: '{{customer.email}}',
+            subject: 'Welcome to your Workspace!',
+            sender: 'onboarding@company.com',
+            body: 'Hi there, we are thrilled to have you!'
+          }
+        }
+      ]
+    },
+    {
+      id: 'wf-3',
+      title: 'Daily Slack Performance Sync',
+      description: 'Cron scheduler that polls Google Sheets metrics and publishes high-level analytics report to #sales channels daily.',
+      isActive: false,
+      createdDate: 'Jul 05, 2026',
+      lastRun: 'Yesterday',
+      successRate: '95.8%',
+      nodes: [
+        {
+          id: 'node-201',
+          type: 'schedule',
+          title: 'Schedule',
+          subtitle: 'Everyday at 9:00 AM',
+          number: 1,
+          status: 'success',
+          x: 430,
+          y: 40,
+          data: {
+            cron: '0 9 * * *',
+            timezone: 'Asia/Kolkata'
+          }
+        },
+        {
+          id: 'node-202',
+          type: 'slack',
+          title: 'Slack',
+          subtitle: 'Publish Analytics',
+          number: 2,
+          status: 'success',
+          x: 430,
+          y: 180,
+          data: {
+            channel: '#management-alerts',
+            message: 'Daily summary generated from Sheet...'
+          }
+        }
+      ]
+    }
+  ]);
+
   // Primary States
-  const [nodes, setNodes] = useState(INITIAL_NODES);
+  const [nodes, setNodes] = useState([]);
   const [selectedNodeId, setSelectedNodeId] = useState(null); // defaults to no selection on load
   const [scale, setScale] = useState(0.9); // zoom level
   const [panOffset, setPanOffset] = useState({ x: 40, y: -20 }); // pan coordinates
@@ -87,10 +340,21 @@ export default function App() {
   const handleSave = useCallback(() => {
     setIsSaving(true);
     setTimeout(() => {
+      setWorkflows(prev => prev.map(w => {
+        if (w.id === currentWorkflowId) {
+          return {
+            ...w,
+            title: workflowTitle,
+            isActive: isActive,
+            nodes: nodes
+          };
+        }
+        return w;
+      }));
       setIsSaving(false);
       setSaveSuccessBanner(true);
     }, 1000);
-  }, []);
+  }, [currentWorkflowId, workflowTitle, isActive, nodes]);
 
   // Update selected node data
   const handleNodeChange = useCallback((nodeId, updatedData) => {
@@ -181,12 +445,8 @@ export default function App() {
     });
   }, [saveToHistory]);
 
-  // Deleting custom nodes
+  // Deleting any node on the canvas
   const handleDeleteNode = useCallback((nodeId) => {
-    // Prevent deleting system nodes shown in screenshot for layout consistency
-    if (['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6', 'node-7', 'node-8', 'node-9'].includes(nodeId)) {
-      return;
-    }
     setNodes(prev => {
       saveToHistory(prev);
       return prev.filter(n => n.id !== nodeId);
@@ -195,12 +455,118 @@ export default function App() {
   }, [saveToHistory]);
 
   const handleActiveToggle = useCallback(() => {
-    setNodes(prev => {
-      saveToHistory(prev);
-      return prev;
+    setIsActive(prev => {
+      const nextActive = !prev;
+      setWorkflows(wfs => wfs.map(w => {
+        if (w.id === currentWorkflowId) {
+          return { ...w, isActive: nextActive };
+        }
+        return w;
+      }));
+      return nextActive;
     });
-    setIsActive(prev => !prev);
-  }, [saveToHistory]);
+  }, [currentWorkflowId]);
+
+  // --- WORKFLOWS ARCHIVE DIRECTORY HANDLERS ---
+  const handleSelectWorkflow = useCallback((wfId) => {
+    const wf = workflows.find(w => w.id === wfId);
+    if (!wf) return;
+    setCurrentWorkflowId(wfId);
+    setWorkflowTitle(wf.title);
+    setIsActive(wf.isActive);
+    setNodes(wf.nodes || []);
+    setSelectedNodeId(null);
+    setUndoStack([]);
+    setRedoStack([]);
+    setCurrentView('editor');
+  }, [workflows]);
+
+  const handleBackToArchive = useCallback(() => {
+    // Write current updates back to local list
+    setWorkflows(prev => prev.map(w => {
+      if (w.id === currentWorkflowId) {
+        return {
+          ...w,
+          title: workflowTitle,
+          isActive: isActive,
+          nodes: nodes
+        };
+      }
+      return w;
+    }));
+    setCurrentView('archive');
+    setCurrentWorkflowId(null);
+  }, [currentWorkflowId, workflowTitle, isActive, nodes]);
+
+  const handleCreateWorkflow = useCallback(() => {
+    const nextWfId = `wf-${Date.now()}`;
+    const nextWfNum = workflows.length + 1;
+    const newWf = {
+      id: nextWfId,
+      title: `Untitled Workflow ${nextWfNum}`,
+      description: 'An empty canvas workspace. Start dropping triggers and actions to build your automated pipeline.',
+      isActive: true,
+      createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      lastRun: 'Never',
+      successRate: '—',
+      nodes: [] // Starts completely empty as requested
+    };
+
+    setWorkflows(prev => [newWf, ...prev]);
+    setCurrentWorkflowId(nextWfId);
+    setWorkflowTitle(newWf.title);
+    setIsActive(newWf.isActive);
+    setNodes([]); // Empty nodes for a fresh canvas!
+    setSelectedNodeId(null);
+    setUndoStack([]);
+    setRedoStack([]);
+    setCurrentView('editor');
+  }, [workflows]);
+
+  const handleDeleteWorkflow = useCallback((wfId) => {
+    if (window.confirm('Are you sure you want to permanently delete this workflow pipeline?')) {
+      setWorkflows(prev => prev.filter(w => w.id !== wfId));
+    }
+  }, []);
+
+  const handleDuplicateWorkflow = useCallback((wfId) => {
+    const targetWf = workflows.find(w => w.id === wfId);
+    if (!targetWf) return;
+
+    const duplicated = {
+      ...JSON.parse(JSON.stringify(targetWf)),
+      id: `wf-${Date.now()}`,
+      title: `${targetWf.title} (Copy)`,
+      createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      lastRun: 'Never'
+    };
+
+    setWorkflows(prev => {
+      const idx = prev.findIndex(w => w.id === wfId);
+      const updated = [...prev];
+      updated.splice(idx + 1, 0, duplicated);
+      return updated;
+    });
+  }, [workflows]);
+
+  const handleToggleActiveFromArchive = useCallback((wfId) => {
+    setWorkflows(prev => prev.map(w => {
+      if (w.id === wfId) {
+        return { ...w, isActive: !w.isActive };
+      }
+      return w;
+    }));
+  }, []);
+
+  const handleTitleChangeInEditor = useCallback((newTitle) => {
+    setWorkflowTitle(newTitle);
+    setWorkflows(prev => prev.map(w => {
+      if (w.id === currentWorkflowId) {
+        return { ...w, title: newTitle };
+      }
+      return w;
+    }));
+  }, [currentWorkflowId]);
 
   // Run Simulated Workflow Execution Pipeline
   const handleExecuteWorkflow = useCallback(() => {
@@ -385,68 +751,82 @@ export default function App() {
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden bg-slate-50 font-sans relative">
-      {/* Visual top bar banner */}
-      <TopBar
-        title={workflowTitle}
-        onTitleChange={setWorkflowTitle}
-        isActive={isActive}
-        onActiveToggle={handleActiveToggle}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        canUndo={undoStack.length > 0}
-        canRedo={redoStack.length > 0}
-        onExecute={handleExecuteWorkflow}
-        isExecuting={isExecuting}
-        onSave={handleSave}
-        isSaving={isSaving}
-      />
-
-      {/* Main Designer Columns layout */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* Left Side: Components sidebar */}
-        <LeftPanel onAddItem={handleAddItem} />
-
-        {/* Center: Zoomable drag-and-drop designer canvas */}
-        <Canvas
-          nodes={nodes}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={setSelectedNodeId}
-          onNodeDrag={handleNodeDrag}
-          onDropNode={handleDropNode}
-          onDeleteNode={handleDeleteNode}
-          scale={scale}
-          setScale={setScale}
-          panOffset={panOffset}
-          setPanOffset={setPanOffset}
-          isExecuting={isExecuting}
-          executionStep={executionStep}
-          onExecute={handleExecuteWorkflow}
-          canvasTab={canvasTab}
-          setCanvasTab={setCanvasTab}
-          logs={logs}
+      {currentView === 'archive' ? (
+        <ArchiveView
+          workflows={workflows}
+          onSelectWorkflow={handleSelectWorkflow}
+          onCreateWorkflow={handleCreateWorkflow}
+          onDeleteWorkflow={handleDeleteWorkflow}
+          onDuplicateWorkflow={handleDuplicateWorkflow}
+          onToggleActive={handleToggleActiveFromArchive}
         />
+      ) : (
+        <>
+          {/* Visual top bar banner */}
+          <TopBar
+            title={workflowTitle}
+            onTitleChange={handleTitleChangeInEditor}
+            isActive={isActive}
+            onActiveToggle={handleActiveToggle}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            canUndo={undoStack.length > 0}
+            canRedo={redoStack.length > 0}
+            onExecute={handleExecuteWorkflow}
+            isExecuting={isExecuting}
+            onSave={handleSave}
+            isSaving={isSaving}
+            onBackToArchive={handleBackToArchive}
+          />
 
-        {/* Right Side: properties configuration sidebar inspector */}
-        <AnimatePresence mode="wait">
-          {selectedNode && (
-            <motion.div
-              key={selectedNode.id}
-              initial={{ x: 320, opacity: 0.8 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 320, opacity: 0.8 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="h-full z-15 flex shrink-0"
-            >
-              <PropertiesPanel
-                node={selectedNode}
-                onNodeChange={handleNodeChange}
-                onClose={() => setSelectedNodeId(null)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          {/* Main Designer Columns layout */}
+          <div className="flex-1 flex overflow-hidden">
+            
+            {/* Left Side: Components sidebar */}
+            <LeftPanel onAddItem={handleAddItem} />
+
+            {/* Center: Zoomable drag-and-drop designer canvas */}
+            <Canvas
+              nodes={nodes}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={setSelectedNodeId}
+              onNodeDrag={handleNodeDrag}
+              onDropNode={handleDropNode}
+              onDeleteNode={handleDeleteNode}
+              scale={scale}
+              setScale={setScale}
+              panOffset={panOffset}
+              setPanOffset={setPanOffset}
+              isExecuting={isExecuting}
+              executionStep={executionStep}
+              onExecute={handleExecuteWorkflow}
+              canvasTab={canvasTab}
+              setCanvasTab={setCanvasTab}
+              logs={logs}
+            />
+
+            {/* Right Side: properties configuration sidebar inspector */}
+            <AnimatePresence mode="wait">
+              {selectedNode && (
+                <motion.div
+                  key={selectedNode.id}
+                  initial={{ x: 320, opacity: 0.8 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 320, opacity: 0.8 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  className="h-full z-15 flex shrink-0"
+                >
+                  <PropertiesPanel
+                    node={selectedNode}
+                    onNodeChange={handleNodeChange}
+                    onClose={() => setSelectedNodeId(null)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
 
       {/* Toast Notification Banners & Confetti Overlays */}
       <AnimatePresence>

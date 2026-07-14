@@ -24,7 +24,8 @@ function TopBar({
   onExecute,
   isExecuting,
   onSave,
-  isSaving
+  isSaving,
+  onBackToArchive
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editVal, setEditVal] = useState(title);
@@ -41,7 +42,13 @@ function TopBar({
     <header id="app-topbar" className="h-14 border-b border-slate-200 bg-white px-6 flex items-center justify-between shrink-0 select-none">
       {/* Left: Breadcrumbs & Editable Title */}
       <div className="flex items-center space-x-3">
-        <span className="text-sm font-medium text-slate-400">Workflows</span>
+        <button 
+          onClick={onBackToArchive}
+          className="text-sm font-medium text-slate-400 hover:text-indigo-600 hover:underline transition-all cursor-pointer focus:outline-none"
+          title="Back to Workflows Archive"
+        >
+          Workflows
+        </button>
         <span className="text-slate-300 text-sm">/</span>
         <div className="flex items-center space-x-2">
           {isEditing ? (

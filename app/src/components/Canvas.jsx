@@ -668,10 +668,10 @@ export default function Canvas({
 
         {/* Dynamic Visual Minimap Overlay (bottom left) */}
         <div id="canvas-minimap" className="absolute bottom-4 left-4 z-10 w-36 h-28 bg-white border border-slate-200 rounded-xl p-2 shadow-soft pointer-events-none select-none">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center space-x-1">
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center space-x-1">
             <Layers className="w-3 h-3 text-slate-400" />
             <span>Minimap View</span>
-          </p>
+          </div>
           <div className="relative w-full h-16 bg-slate-50 border border-slate-100 rounded-lg overflow-hidden">
             {/* Scaled-down dot representation of our 9 main nodes */}
             {nodes.map(n => {

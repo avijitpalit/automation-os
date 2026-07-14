@@ -1,0 +1,3 @@
+the drag drop is too slow
+workflow archive store in wp db
+execution connect with rest api (start with simple, form fill up then mail)
