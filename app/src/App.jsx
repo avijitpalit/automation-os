@@ -4,7 +4,7 @@ import LeftPanel from './components/LeftPanel.jsx';
 import Canvas from './components/Canvas.jsx';
 import PropertiesPanel from './components/PropertiesPanel.jsx';
 import ArchiveView from './components/ArchiveView.jsx';
-import { useWorkflows } from './hooks/useWorkflows';
+import { useWorkflows } from './hooks/useWorkflows.js';
 import { 
   INITIAL_NODES, 
   SIDEBAR_ITEMS
@@ -12,258 +12,259 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertCircle, X, Sparkles, AlertTriangle } from 'lucide-react';
 
+const DEFAULT_WORKFLOWS = [
+  {
+    id: 'wf-1',
+    title: 'High Value Order Automation',
+    description: 'Evaluates WooCommerce cart value threshold and triggers email/Slack updates with real-time AI classification.',
+    isActive: true,
+    createdDate: 'Jul 12, 2026',
+    lastRun: '12 mins ago',
+    successRate: '98.5%',
+    nodes: [
+      {
+        id: 'node-1',
+        type: 'woocommerce',
+        title: 'WooCommerce',
+        subtitle: 'Order Created',
+        number: 1,
+        status: 'success',
+        x: 430,
+        y: 40,
+        data: {
+          storeUrl: 'https://my-woocommerce-shop.com',
+          event: 'order.created',
+          credentials: 'Shop Admin Key (***-***)'
+        }
+      },
+      {
+        id: 'node-2',
+        type: 'condition',
+        title: 'Condition',
+        subtitle: 'Cart Total > ₹5,000',
+        number: 2,
+        status: 'success',
+        x: 430,
+        y: 160,
+        data: {
+          field: 'cart.total_price',
+          operator: 'greater_than',
+          value: '5000',
+          currency: 'INR'
+        }
+      },
+      {
+        id: 'node-3',
+        type: 'ai-agent',
+        title: 'AI Agent',
+        subtitle: 'Analyze Order',
+        number: 3,
+        status: 'success',
+        x: 180,
+        y: 330,
+        data: {
+          agentName: 'Order Analysis Agent',
+          prompt: 'Analyze this order and extract customer intent, product category, and suggest upsell products.',
+          model: 'gemini-3.5-flash',
+          temperature: 0.3,
+          testOutput: {
+            intent: 'high_value_purchase',
+            customer_type: 'new_customer',
+            category: 'electronics',
+            recommended_upsell: [
+              'extended_warranty',
+              'wireless_earbuds',
+              'laptop_bag'
+            ],
+            confidence: 0.92
+          }
+        }
+      },
+      {
+        id: 'node-4',
+        type: 'email',
+        title: 'Email',
+        subtitle: 'Send Thank You Email',
+        number: 4,
+        status: 'success',
+        x: 180,
+        y: 450,
+        data: {
+          recipient: '{{customer.email}}',
+          subject: 'Thank you for your order! - #{{order.id}}',
+          sender: 'sales@my-shop.com',
+          body: 'Hi {{customer.first_name}},\n\nThank you so much for your purchase of ₹{{order.total}}! We are preparing your order and will send tracking info soon.'
+        }
+      },
+      {
+        id: 'node-5',
+        type: 'google-sheets',
+        title: 'Google Sheets',
+        subtitle: 'Add Order to Sheet',
+        number: 5,
+        status: 'success',
+        x: 180,
+        y: 570,
+        data: {
+          spreadsheetId: 'spreadsheet_high_value_orders_2026',
+          sheetName: 'Sheet1',
+          columns: [
+            { key: 'OrderID', value: '{{order.id}}' },
+            { key: 'Customer', value: '{{customer.name}}' },
+            { key: 'Total', value: '{{order.total}}' },
+            { key: 'AI_Intent', value: '{{node3.intent}}' }
+          ]
+        }
+      },
+      {
+        id: 'node-6',
+        type: 'slack',
+        title: 'Slack',
+        subtitle: 'Notify Sales Team',
+        number: 6,
+        status: 'success',
+        x: 180,
+        y: 690,
+        data: {
+          channel: '#sales-alerts',
+          message: '🚀 *New High Value Order!* \nOrder #{{order.id}} by {{customer.name}} for *₹{{order.total}}*.\nAI Insights: Customer intent is *{{node3.intent}}* ({{node3.confidence}} confidence).'
+        }
+      },
+      {
+        id: 'node-7',
+        type: 'delay',
+        title: 'Delay',
+        subtitle: 'Wait 24 Hours',
+        number: 7,
+        status: 'idle',
+        x: 680,
+        y: 330,
+        data: {
+          duration: '24',
+          unit: 'hours'
+        }
+      },
+      {
+        id: 'node-8',
+        type: 'email',
+        title: 'Email',
+        subtitle: 'Send Reminder Email',
+        number: 8,
+        status: 'idle',
+        x: 680,
+        y: 450,
+        data: {
+          recipient: '{{customer.email}}',
+          subject: 'Complete your checkout!',
+          sender: 'reminders@my-shop.com',
+          body: 'Hi {{customer.first_name}},\n\nWe noticed you didn\'t finish checking out. Don\'t miss out on your items!'
+        }
+      },
+      {
+        id: 'node-9',
+        type: 'update-order',
+        title: 'Update Order',
+        subtitle: 'Add Order Note',
+        number: 9,
+        status: 'idle',
+        x: 430,
+        y: 810,
+        data: {
+          orderId: '{{order.id}}',
+          note: 'High-value flow processed. AI intent: {{node3.intent}}. Alert dispatched to Slack and sales notified.',
+          isCustomerNote: false
+        }
+      }
+    ]
+  },
+  {
+    id: 'wf-2',
+    title: 'Customer Onboarding Sequence',
+    description: 'Triggers on Form submission, routes introductory welcome kit emails, and schedules custom delay segments.',
+    isActive: true,
+    createdDate: 'Jul 10, 2026',
+    lastRun: '1 hour ago',
+    successRate: '100%',
+    nodes: [
+      {
+        id: 'node-101',
+        type: 'form',
+        title: 'Form',
+        subtitle: 'Onboarding Submit',
+        number: 1,
+        status: 'success',
+        x: 430,
+        y: 40,
+        data: {
+          formId: 'onboarding-form-2026',
+          title: 'New Signup Form'
+        }
+      },
+      {
+        id: 'node-102',
+        type: 'email',
+        title: 'Email',
+        subtitle: 'Send Welcome Kit',
+        number: 2,
+        status: 'success',
+        x: 430,
+        y: 180,
+        data: {
+          recipient: '{{customer.email}}',
+          subject: 'Welcome to your Workspace!',
+          sender: 'onboarding@company.com',
+          body: 'Hi there, we are thrilled to have you!'
+        }
+      }
+    ]
+  },
+  {
+    id: 'wf-3',
+    title: 'Daily Slack Performance Sync',
+    description: 'Cron scheduler that polls Google Sheets metrics and publishes high-level analytics report to #sales channels daily.',
+    isActive: false,
+    createdDate: 'Jul 05, 2026',
+    lastRun: 'Yesterday',
+    successRate: '95.8%',
+    nodes: [
+      {
+        id: 'node-201',
+        type: 'schedule',
+        title: 'Schedule',
+        subtitle: 'Everyday at 9:00 AM',
+        number: 1,
+        status: 'success',
+        x: 430,
+        y: 40,
+        data: {
+          cron: '0 9 * * *',
+          timezone: 'Asia/Kolkata'
+        }
+      },
+      {
+        id: 'node-202',
+        type: 'slack',
+        title: 'Slack',
+        subtitle: 'Publish Analytics',
+        number: 2,
+        status: 'success',
+        x: 430,
+        y: 180,
+        data: {
+          channel: '#management-alerts',
+          message: 'Daily summary generated from Sheet...'
+        }
+      }
+    ]
+  }
+];
+
 export default function App() {
+  const { workflows, setWorkflows, loading, saveWorkflow, deleteWorkflow } = useWorkflows(DEFAULT_WORKFLOWS);
+
   // Navigation and Workflows States
   const [currentView, setCurrentView] = useState('archive'); // 'archive' | 'editor'
   const [currentWorkflowId, setCurrentWorkflowId] = useState(null);
-  
-  // Pre-populated templates for visual simulation. New custom creations are starting completely empty!
-  const [workflows, setWorkflows] = useState([
-    {
-      id: 'wf-1',
-      title: 'High Value Order Automation',
-      description: 'Evaluates WooCommerce cart value threshold and triggers email/Slack updates with real-time AI classification.',
-      isActive: true,
-      createdDate: 'Jul 12, 2026',
-      lastRun: '12 mins ago',
-      successRate: '98.5%',
-      nodes: [
-        {
-          id: 'node-1',
-          type: 'woocommerce',
-          title: 'WooCommerce',
-          subtitle: 'Order Created',
-          number: 1,
-          status: 'success',
-          x: 430,
-          y: 40,
-          data: {
-            storeUrl: 'https://my-woocommerce-shop.com',
-            event: 'order.created',
-            credentials: 'Shop Admin Key (***-***)'
-          }
-        },
-        {
-          id: 'node-2',
-          type: 'condition',
-          title: 'Condition',
-          subtitle: 'Cart Total > ₹5,000',
-          number: 2,
-          status: 'success',
-          x: 430,
-          y: 160,
-          data: {
-            field: 'cart.total_price',
-            operator: 'greater_than',
-            value: '5000',
-            currency: 'INR'
-          }
-        },
-        {
-          id: 'node-3',
-          type: 'ai-agent',
-          title: 'AI Agent',
-          subtitle: 'Analyze Order',
-          number: 3,
-          status: 'success',
-          x: 180,
-          y: 330,
-          data: {
-            agentName: 'Order Analysis Agent',
-            prompt: 'Analyze this order and extract customer intent, product category, and suggest upsell products.',
-            model: 'gemini-3.5-flash',
-            temperature: 0.3,
-            testOutput: {
-              intent: 'high_value_purchase',
-              customer_type: 'new_customer',
-              category: 'electronics',
-              recommended_upsell: [
-                'extended_warranty',
-                'wireless_earbuds',
-                'laptop_bag'
-              ],
-              confidence: 0.92
-            }
-          }
-        },
-        {
-          id: 'node-4',
-          type: 'email',
-          title: 'Email',
-          subtitle: 'Send Thank You Email',
-          number: 4,
-          status: 'success',
-          x: 180,
-          y: 450,
-          data: {
-            recipient: '{{customer.email}}',
-            subject: 'Thank you for your order! - #{{order.id}}',
-            sender: 'sales@my-shop.com',
-            body: 'Hi {{customer.first_name}},\n\nThank you so much for your purchase of ₹{{order.total}}! We are preparing your order and will send tracking info soon.'
-          }
-        },
-        {
-          id: 'node-5',
-          type: 'google-sheets',
-          title: 'Google Sheets',
-          subtitle: 'Add Order to Sheet',
-          number: 5,
-          status: 'success',
-          x: 180,
-          y: 570,
-          data: {
-            spreadsheetId: 'spreadsheet_high_value_orders_2026',
-            sheetName: 'Sheet1',
-            columns: [
-              { key: 'OrderID', value: '{{order.id}}' },
-              { key: 'Customer', value: '{{customer.name}}' },
-              { key: 'Total', value: '{{order.total}}' },
-              { key: 'AI_Intent', value: '{{node3.intent}}' }
-            ]
-          }
-        },
-        {
-          id: 'node-6',
-          type: 'slack',
-          title: 'Slack',
-          subtitle: 'Notify Sales Team',
-          number: 6,
-          status: 'success',
-          x: 180,
-          y: 690,
-          data: {
-            channel: '#sales-alerts',
-            message: '🚀 *New High Value Order!* \nOrder #{{order.id}} by {{customer.name}} for *₹{{order.total}}*.\nAI Insights: Customer intent is *{{node3.intent}}* ({{node3.confidence}} confidence).'
-          }
-        },
-        {
-          id: 'node-7',
-          type: 'delay',
-          title: 'Delay',
-          subtitle: 'Wait 24 Hours',
-          number: 7,
-          status: 'idle',
-          x: 680,
-          y: 330,
-          data: {
-            duration: '24',
-            unit: 'hours'
-          }
-        },
-        {
-          id: 'node-8',
-          type: 'email',
-          title: 'Email',
-          subtitle: 'Send Reminder Email',
-          number: 8,
-          status: 'idle',
-          x: 680,
-          y: 450,
-          data: {
-            recipient: '{{customer.email}}',
-            subject: 'Complete your checkout!',
-            sender: 'reminders@my-shop.com',
-            body: 'Hi {{customer.first_name}},\n\nWe noticed you didn\'t finish checking out. Don\'t miss out on your items!'
-          }
-        },
-        {
-          id: 'node-9',
-          type: 'update-order',
-          title: 'Update Order',
-          subtitle: 'Add Order Note',
-          number: 9,
-          status: 'idle',
-          x: 430,
-          y: 810,
-          data: {
-            orderId: '{{order.id}}',
-            note: 'High-value flow processed. AI intent: {{node3.intent}}. Alert dispatched to Slack and sales notified.',
-            isCustomerNote: false
-          }
-        }
-      ]
-    },
-    {
-      id: 'wf-2',
-      title: 'Customer Onboarding Sequence',
-      description: 'Triggers on Form submission, routes introductory welcome kit emails, and schedules custom delay segments.',
-      isActive: true,
-      createdDate: 'Jul 10, 2026',
-      lastRun: '1 hour ago',
-      successRate: '100%',
-      nodes: [
-        {
-          id: 'node-101',
-          type: 'form',
-          title: 'Form',
-          subtitle: 'Onboarding Submit',
-          number: 1,
-          status: 'success',
-          x: 430,
-          y: 40,
-          data: {
-            formId: 'onboarding-form-2026',
-            title: 'New Signup Form'
-          }
-        },
-        {
-          id: 'node-102',
-          type: 'email',
-          title: 'Email',
-          subtitle: 'Send Welcome Kit',
-          number: 2,
-          status: 'success',
-          x: 430,
-          y: 180,
-          data: {
-            recipient: '{{customer.email}}',
-            subject: 'Welcome to your Workspace!',
-            sender: 'onboarding@company.com',
-            body: 'Hi there, we are thrilled to have you!'
-          }
-        }
-      ]
-    },
-    {
-      id: 'wf-3',
-      title: 'Daily Slack Performance Sync',
-      description: 'Cron scheduler that polls Google Sheets metrics and publishes high-level analytics report to #sales channels daily.',
-      isActive: false,
-      createdDate: 'Jul 05, 2026',
-      lastRun: 'Yesterday',
-      successRate: '95.8%',
-      nodes: [
-        {
-          id: 'node-201',
-          type: 'schedule',
-          title: 'Schedule',
-          subtitle: 'Everyday at 9:00 AM',
-          number: 1,
-          status: 'success',
-          x: 430,
-          y: 40,
-          data: {
-            cron: '0 9 * * *',
-            timezone: 'Asia/Kolkata'
-          }
-        },
-        {
-          id: 'node-202',
-          type: 'slack',
-          title: 'Slack',
-          subtitle: 'Publish Analytics',
-          number: 2,
-          status: 'success',
-          x: 430,
-          y: 180,
-          data: {
-            channel: '#management-alerts',
-            message: 'Daily summary generated from Sheet...'
-          }
-        }
-      ]
-    }
-  ]);
 
   // Primary States
   const [nodes, setNodes] = useState([]);
@@ -338,24 +339,20 @@ export default function App() {
   }, []);
 
   // Handle manual saving action
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      setWorkflows(prev => prev.map(w => {
-        if (w.id === currentWorkflowId) {
-          return {
-            ...w,
-            title: workflowTitle,
-            isActive: isActive,
-            nodes: nodes
-          };
-        }
-        return w;
-      }));
-      setIsSaving(false);
-      setSaveSuccessBanner(true);
-    }, 1000);
-  }, [currentWorkflowId, workflowTitle, isActive, nodes]);
+    const targetWf = workflows.find(w => w.id === currentWorkflowId) || {};
+    const updated = {
+      ...targetWf,
+      id: currentWorkflowId,
+      title: workflowTitle,
+      isActive: isActive,
+      nodes: nodes
+    };
+    await saveWorkflow(updated);
+    setIsSaving(false);
+    setSaveSuccessBanner(true);
+  }, [currentWorkflowId, workflowTitle, isActive, nodes, workflows, saveWorkflow]);
 
   // Update selected node data
   const handleNodeChange = useCallback((nodeId, updatedData) => {
@@ -458,15 +455,13 @@ export default function App() {
   const handleActiveToggle = useCallback(() => {
     setIsActive(prev => {
       const nextActive = !prev;
-      setWorkflows(wfs => wfs.map(w => {
-        if (w.id === currentWorkflowId) {
-          return { ...w, isActive: nextActive };
-        }
-        return w;
-      }));
+      const targetWf = workflows.find(w => w.id === currentWorkflowId);
+      if (targetWf) {
+        saveWorkflow({ ...targetWf, isActive: nextActive });
+      }
       return nextActive;
     });
-  }, [currentWorkflowId]);
+  }, [currentWorkflowId, workflows, saveWorkflow]);
 
   // --- WORKFLOWS ARCHIVE DIRECTORY HANDLERS ---
   const handleSelectWorkflow = useCallback((wfId) => {
@@ -482,24 +477,22 @@ export default function App() {
     setCurrentView('editor');
   }, [workflows]);
 
-  const handleBackToArchive = useCallback(() => {
-    // Write current updates back to local list
-    setWorkflows(prev => prev.map(w => {
-      if (w.id === currentWorkflowId) {
-        return {
-          ...w,
-          title: workflowTitle,
-          isActive: isActive,
-          nodes: nodes
-        };
-      }
-      return w;
-    }));
+  const handleBackToArchive = useCallback(async () => {
+    // Write current updates back to local list and REST API
+    const targetWf = workflows.find(w => w.id === currentWorkflowId) || {};
+    const updated = {
+      ...targetWf,
+      id: currentWorkflowId,
+      title: workflowTitle,
+      isActive: isActive,
+      nodes: nodes
+    };
+    await saveWorkflow(updated);
     setCurrentView('archive');
     setCurrentWorkflowId(null);
-  }, [currentWorkflowId, workflowTitle, isActive, nodes]);
+  }, [currentWorkflowId, workflowTitle, isActive, nodes, workflows, saveWorkflow]);
 
-  const handleCreateWorkflow = useCallback(() => {
+  const handleCreateWorkflow = useCallback(async () => {
     const nextWfId = `wf-${Date.now()}`;
     const nextWfNum = workflows.length + 1;
     const newWf = {
@@ -513,7 +506,7 @@ export default function App() {
       nodes: [] // Starts completely empty as requested
     };
 
-    setWorkflows(prev => [newWf, ...prev]);
+    await saveWorkflow(newWf);
     setCurrentWorkflowId(nextWfId);
     setWorkflowTitle(newWf.title);
     setIsActive(newWf.isActive);
@@ -522,15 +515,15 @@ export default function App() {
     setUndoStack([]);
     setRedoStack([]);
     setCurrentView('editor');
-  }, [workflows]);
+  }, [workflows, saveWorkflow]);
 
-  const handleDeleteWorkflow = useCallback((wfId) => {
+  const handleDeleteWorkflow = useCallback(async (wfId) => {
     if (window.confirm('Are you sure you want to permanently delete this workflow pipeline?')) {
-      setWorkflows(prev => prev.filter(w => w.id !== wfId));
+      await deleteWorkflow(wfId);
     }
-  }, []);
+  }, [deleteWorkflow]);
 
-  const handleDuplicateWorkflow = useCallback((wfId) => {
+  const handleDuplicateWorkflow = useCallback(async (wfId) => {
     const targetWf = workflows.find(w => w.id === wfId);
     if (!targetWf) return;
 
@@ -542,32 +535,27 @@ export default function App() {
       lastRun: 'Never'
     };
 
-    setWorkflows(prev => {
-      const idx = prev.findIndex(w => w.id === wfId);
-      const updated = [...prev];
-      updated.splice(idx + 1, 0, duplicated);
-      return updated;
-    });
-  }, [workflows]);
+    await saveWorkflow(duplicated);
+  }, [workflows, saveWorkflow]);
 
-  const handleToggleActiveFromArchive = useCallback((wfId) => {
-    setWorkflows(prev => prev.map(w => {
-      if (w.id === wfId) {
-        return { ...w, isActive: !w.isActive };
-      }
-      return w;
-    }));
-  }, []);
+  const handleToggleActiveFromArchive = useCallback(async (wfId) => {
+    const targetWf = workflows.find(w => w.id === wfId);
+    if (!targetWf) return;
+
+    const updated = {
+      ...targetWf,
+      isActive: !targetWf.isActive
+    };
+    await saveWorkflow(updated);
+  }, [workflows, saveWorkflow]);
 
   const handleTitleChangeInEditor = useCallback((newTitle) => {
     setWorkflowTitle(newTitle);
-    setWorkflows(prev => prev.map(w => {
-      if (w.id === currentWorkflowId) {
-        return { ...w, title: newTitle };
-      }
-      return w;
-    }));
-  }, [currentWorkflowId]);
+    const targetWf = workflows.find(w => w.id === currentWorkflowId);
+    if (targetWf) {
+      saveWorkflow({ ...targetWf, title: newTitle });
+    }
+  }, [currentWorkflowId, workflows, saveWorkflow]);
 
   // Run Simulated Workflow Execution Pipeline
   const handleExecuteWorkflow = useCallback(() => {
