@@ -25,6 +25,7 @@ export function useWorkflows() {
     if (res.success) {
       await fetchWorkflows();
     }
+    return res;
   };
 
   const deleteWorkflow = async (id) => {

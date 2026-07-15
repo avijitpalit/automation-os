@@ -261,22 +261,28 @@ export default function App() {
   }, [navigate]);
 
   const handleCreateWorkflow = useCallback(async () => {
-    const nextWfId = `wf-${Date.now()}`;
     const nextWfNum = workflows.length + 1;
     const newWf = {
-      id: nextWfId,
       title: `Untitled Workflow ${nextWfNum}`,
       description: 'An empty canvas workspace. Start dropping triggers and actions to build your automated pipeline.',
       isActive: true,
       createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
       lastRun: 'Never',
       successRate: '—',
-      nodes: [] // Starts completely empty as requested
+      nodes: []
+      // no `id` — let the DB assign one
     };
 
-    await saveWorkflow(newWf);
-    navigate(`/editor/${nextWfId}`);
-  }, [workflows, saveWorkflow, navigate]);
+    const res = await saveWorkflow(newWf);
+    setCurrentWorkflowId(res.id);   // ⬅ use the real numeric id
+    setWorkflowTitle(newWf.title);
+    setIsActive(newWf.isActive);
+    setNodes([]);
+    setSelectedNodeId(null);
+    setUndoStack([]);
+    setRedoStack([]);
+    setCurrentView('editor');
+  }, [workflows, saveWorkflow]);
 
   const handleDeleteWorkflow = useCallback(async (wfId) => {
     if (window.confirm('Are you sure you want to permanently delete this workflow pipeline?')) {
@@ -323,8 +329,8 @@ export default function App() {
 
   return (
     <Routes>
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           <ArchiveView
             workflows={workflows}
@@ -334,16 +340,16 @@ export default function App() {
             onDuplicateWorkflow={handleDuplicateWorkflow}
             onToggleActive={handleToggleActiveFromArchive}
           />
-        } 
+        }
       />
-      <Route 
-        path="/editor/:workflowId" 
+      <Route
+        path="/editor/:workflowId"
         element={
           <EditorView
             workflows={workflows}
             saveWorkflow={saveWorkflow}
           />
-        } 
+        }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

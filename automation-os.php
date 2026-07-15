@@ -232,15 +232,13 @@ function aos_get_workflows_handler() {
 function aos_save_workflow_handler( $request ) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . 'aos_workflows';
-	
+
 	$id          = $request->get_param( 'id' );
 	$title       = sanitize_text_field( $request->get_param( 'title' ) );
 	$description = sanitize_textarea_field( $request->get_param( 'description' ) );
 	$is_active   = $request->get_param( 'isActive' ) ? 1 : 0;
-	
-	// We preserve the JSON structural strings as arrays to safely store via longtext columns
-	$nodes = wp_json_encode( $request->get_param( 'nodes' ) ?: array() );
-	$edges = wp_json_encode( $request->get_param( 'edges' ) ?: array() );
+	$nodes       = wp_json_encode( $request->get_param( 'nodes' ) ?: array() );
+	$edges       = wp_json_encode( $request->get_param( 'edges' ) ?: array() );
 
 	$data = array(
 		'title'       => $title,
@@ -250,11 +248,11 @@ function aos_save_workflow_handler( $request ) {
 		'edges'       => $edges,
 	);
 
-	if ( ! empty( $id ) ) {
-		// Update existing record
-		$wpdb->update( $table_name, $data, array( 'id' => $id ) );
+	// Only treat it as an existing row if it's a genuine positive integer ID.
+	if ( ! empty( $id ) && is_numeric( $id ) && intval( $id ) > 0 ) {
+		$wpdb->update( $table_name, $data, array( 'id' => intval( $id ) ) );
+		$id = intval( $id );
 	} else {
-		// Create brand new workspace row
 		$wpdb->insert( $table_name, $data );
 		$id = $wpdb->insert_id;
 	}
