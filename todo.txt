@@ -1,3 +1,9 @@
-the drag drop is too slow
+OBJECTIVES:
+
 workflow archive store in wp db
 execution connect with rest api (start with simple, form fill up then mail)
+
+AI IMPROVE:
+
+the drag drop is too slow, fix this
+loader inside button while loading

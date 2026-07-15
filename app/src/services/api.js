@@ -1,7 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
 
+const settings = window.aosApiSettings || {};
+
 // Dynamically root to the local WordPress site's REST API path
-apiFetch.use(apiFetch.createRootURLMiddleware(window.location.origin + '/wp-json/'));
+apiFetch.use(apiFetch.createRootURLMiddleware(settings.root || (window.location.origin + '/wp-json/')));
+if (settings.nonce) {
+  apiFetch.use(apiFetch.createNonceMiddleware(settings.nonce));
+}
 
 export const WorkflowService = {
   /**

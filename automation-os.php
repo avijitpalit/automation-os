@@ -88,6 +88,11 @@ function aos_enqueue_admin_assets( $hook ) {
 			filemtime( $js_path ),
 			true
 		);
+
+		wp_localize_script( 'automation-os-app', 'aosApiSettings', array(
+			'root'  => esc_url_raw( rest_url() ),
+			'nonce' => wp_create_nonce( 'wp_rest' ),
+		) );
 	}
 
 	if ( file_exists( $css_path ) ) {
@@ -125,6 +130,12 @@ function aos_print_dev_scripts( $hook ) {
 				window.$RefreshReg$ = () => {}
 				window.$RefreshSig$ = () => (type) => type
 				window.__vite_plugin_react_preamble_installed__ = true
+			</script>
+			<script>
+				window.aosApiSettings = {
+					root: '<?php echo esc_url_raw( rest_url() ); ?>',
+					nonce: '<?php echo wp_create_nonce( 'wp_rest' ); ?>'
+				};
 			</script>
 			<script type="module" src="http://localhost:3000/@vite/client"></script>
 			<script type="module" src="http://localhost:3000/src/main.jsx"></script>
