@@ -4,6 +4,7 @@ import LeftPanel from './components/LeftPanel.jsx';
 import Canvas from './components/Canvas.jsx';
 import PropertiesPanel from './components/PropertiesPanel.jsx';
 import ArchiveView from './components/ArchiveView.jsx';
+import { useWorkflows } from './hooks/useWorkflows';
 import { 
   INITIAL_NODES, 
   SIDEBAR_ITEMS
