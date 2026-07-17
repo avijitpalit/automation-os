@@ -7,3 +7,4 @@ AI IMPROVE:
 node placement is not accurate, how to change/move lines between input and output between nodes?
 how to use the condition node. I can't set true/false lines from condition node.
 top right three dots to exit button to workflows
+drag drop node from left sidebar shows ai magic icon for every node
