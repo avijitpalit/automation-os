@@ -4,7 +4,8 @@ execution connect with rest api (start with simple, form fill up then mail)
 
 AI IMPROVE:
 
-node placement is not accurate, how to change/move lines between input and output between nodes?
-how to use the condition node. I can't set true/false lines from condition node.
-top right three dots to exit button to workflows
+overlay issue, top button can't access
 drag drop node from left sidebar shows ai magic icon for every node
+show a remove/cross icon and make the node connector remove when clicked, currently its removing when dbl clicked
+during activating a workflow, it moved to very first
+what is this tick under node for?
