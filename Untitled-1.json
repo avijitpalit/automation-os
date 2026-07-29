@@ -1,0 +1,23 @@
+{
+    "post_created": {
+        "label": "Post Created",
+        "type": "select"
+    },
+    "post_updated": {
+        "label": "Post Updated",
+        "type": "select",
+        "children": {
+            "any_or_specific": {
+                "label": "Any or Specific",
+                "type": "select",
+                "children": {
+                    "specific": {
+                        "label": "Specific Post",
+                        "type": "text",
+                        "placeholder": "Post id or slug here"
+                    }
+                }
+            }
+        }
+    }
+}
