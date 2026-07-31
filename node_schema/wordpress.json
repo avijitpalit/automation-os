@@ -1,0 +1,46 @@
+[
+  {
+    "name": "trigger_type",
+    "type": "select",
+    "label": "Trigger Type",
+    "options": [
+      {
+        "value": "post_created",
+        "label": "Post Created"
+      },
+      {
+        "value": "post_updated",
+        "label": "Post Updated",
+        "children": [
+          {
+            "name": "any_or_specific",
+            "type": "select",
+            "label": "Any or Specific?",
+            "options": [
+              {
+                "value": "any",
+                "label": "Any Post"
+              },
+              {
+                "value": "specific",
+                "label": "Specific Post",
+                "children": [
+                  {
+                    "name": "post_id_slug",
+                    "type": "text",
+                    "label": "Post ID or Slug",
+                    "placeholder": "Enter post ID or slug here..."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "post_deleted",
+        "label": "Post Deleted"
+      }
+    ]
+  }
+]

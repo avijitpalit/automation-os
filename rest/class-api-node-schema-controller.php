@@ -31,82 +31,78 @@ class API_Node_Schema_Controller {
 	}
 
 	public function get_schema( $request ) {
-		// fetch schema logic here
-		$type = sanitize_text_field( $request['type'] );
-		switch ($type) {
-			case 'wordpress': return rest_ensure_response(get_wordpress_node_schema()); break;
-			default: return rest_ensure_response([]);
-		}
+		$type = sanitize_key( $request['type'] );
 
-		return $type;
+        if ( empty( $type ) ) {
+            return new WP_Error( 'rest_invalid_type', 'Invalid schema type parameter.', array( 'status' => 400 ) );
+        }
+
+        $schema_dir = AOS_PLUGIN_DIR . 'node_schema/';
+        $file_path  = $schema_dir . $type . '.json';
+
+        if ( ! file_exists( $file_path ) ) {
+            return new WP_Error( 'rest_schema_not_found', 'The requested node schema configuration does not exist.' . $file_path, array( 'status' => 404 ) );
+        }
+
+        $json_content = file_get_contents( $file_path );
+        if ( false === $json_content ) {
+            return new WP_Error( 'rest_schema_read_failure', 'Unable to open schema configuration file.', array( 'status' => 500 ) );
+        }
+    
+		$schema_data = json_decode( $json_content, true );
+        if ( null === $schema_data && json_last_error() !== JSON_ERROR_NONE ) {
+            return new WP_Error( 'rest_invalid_json', 'The schema storage file contains corrupted JSON format.', array( 'status' => 500 ) );
+        }
+
+		return rest_ensure_response( $schema_data );
 	}
 }
 
 function get_wordpress_node_schema() {
     return [
-        // 1. Base Trigger Type
-        'trigger_type' => [
+        [
+            'key'    => 'trigger_type',
             'type'    => 'select',
-            'label'   => 'Trigger type',
+            'label'   => 'Trigger Type',
             'options' => [
-                ['value' => 'post_created', 'label' => 'Post created'],
-                ['value' => 'post_updated', 'label' => 'Post updated'],
-                ['value' => 'post_deleted', 'label' => 'Post deleted'],
-                ['value' => 'user_logged_in', 'label' => 'User logged in'],
-            ],
-        ],
-        
-        // 2. Post Target (Depends on 'post_updated')
-        'post_target' => [
-            'type'       => 'select',
-            'label'      => 'Which post?',
-            'options'    => [
-                ['value' => 'any', 'label' => 'Any post'],
-                ['value' => 'specific', 'label' => 'Specific post'],
-            ],
-            'depends_on' => [
-                'field' => 'trigger_type',
-                'operator' => '==',
-                'value' => 'post_updated',
-            ],
-        ],
-        
-        // 3. Post ID Input (Depends on 'post_target' being 'specific')
-        'post_id' => [
-            'type'       => 'text',
-            'label'      => 'Enter Post ID',
-            'placeholder'=> 'e.g. 1045',
-            'depends_on' => [
-                'field' => 'post_target',
-                'operator' => '==',
-                'value' => 'specific',
-            ],
-        ],
-        
-        // 4. User Target (Depends on 'user_logged_in')
-        'user_target' => [
-            'type'       => 'select',
-            'label'      => 'Which user?',
-            'options'    => [
-                ['value' => 'any', 'label' => 'Any user'],
-                ['value' => 'specific', 'label' => 'Specific user'],
-            ],
-            'depends_on' => [
-                'field' => 'trigger_type',
-                'operator' => '==',
-                'value' => 'user_logged_in',
-            ],
-        ],
-        
-        // 5. User Email Input (Depends on 'user_target' being 'specific')
-        'user_email' => [
-            'type'       => 'text',
-            'label'      => 'Username or Email',
-            'depends_on' => [
-                'field' => 'user_target',
-                'operator' => '==',
-                'value' => 'specific',
-            ],
+                [
+                    'value' => 'post_created',
+                    'label' => 'Post Created'
+                ],
+                [
+                    'value'    => 'post_updated',
+                    'label'    => 'Post Updated',
+                    'children' => [
+                        [
+                            'key'    => 'any_or_specific',
+                            'type'    => 'select',
+                            'label'   => 'Any or Specific?',
+                            'options' => [
+                                [
+                                    'value' => 'any',
+                                    'label' => 'Any Post'
+                                ],
+                                [
+                                    'value'    => 'specific',
+                                    'label'    => 'Specific Post',
+                                    'children' => [
+                                        [
+                                            'key'        => 'post_id_slug',
+                                            'type'        => 'text',
+                                            'label'       => 'Post ID or Slug',
+                                            'placeholder' => 'Enter post ID or slug here...'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'value' => 'post_deleted',
+                    'label' => 'Post Deleted'
+                ]
+            ]
         ]
     ];
 }
