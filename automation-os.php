@@ -19,6 +19,8 @@ define( 'AOS_VERSION', '1.0.0' );
 # Endpoints - Node schema
 require_once AOS_PLUGIN_DIR . 'rest/class-api-node-schema-controller.php';
 new API_Node_Schema_Controller();
+# Workflow engine
+require_once AOS_PLUGIN_DIR . 'class-workflow-engine.php';
 
 
 /**
