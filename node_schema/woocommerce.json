@@ -1,0 +1,43 @@
+[
+  {
+    "name": "trigger_type",
+    "type": "select",
+    "label": "Trigger Event",
+    "options": [
+      {
+        "value": "order_created",
+        "label": "Order Created"
+      },
+      {
+        "value": "order_status_changed",
+        "label": "Order Status Changed",
+        "children": [
+          {
+            "name": "target_status",
+            "type": "select",
+            "label": "Target Status",
+            "options": [
+              { "value": "processing", "label": "Processing" },
+              { "value": "completed", "label": "Completed" },
+              { "value": "cancelled", "label": "Cancelled" },
+              { "value": "refunded", "label": "Refunded" },
+              { "value": "failed", "label": "Failed" }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "low_stock",
+        "label": "Product Low Stock",
+        "children": [
+          {
+            "name": "stock_threshold",
+            "type": "number",
+            "label": "Stock Threshold",
+            "placeholder": "5"
+          }
+        ]
+      }
+    ]
+  }
+]

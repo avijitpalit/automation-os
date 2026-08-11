@@ -1,0 +1,21 @@
+[
+  {
+    "name": "trigger_type",
+    "type": "select",
+    "label": "Form Provider / Event",
+    "options": [
+      {
+        "value": "form_submission",
+        "label": "Form Submitted",
+        "children": [
+          {
+            "name": "form_id",
+            "type": "text",
+            "label": "Form ID or Title",
+            "placeholder": "e.g. onboarding-form-2026"
+          }
+        ]
+      }
+    ]
+  }
+]

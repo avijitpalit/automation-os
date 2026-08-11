@@ -1,0 +1,23 @@
+[
+  {
+    "name": "action_type",
+    "type": "select",
+    "label": "Sheet Action",
+    "options": [
+      { "value": "add_row", "label": "Add New Row" },
+      { "value": "update_row", "label": "Update Existing Row" }
+    ]
+  },
+  {
+    "name": "spreadsheet_id",
+    "type": "text",
+    "label": "Spreadsheet ID / Name",
+    "placeholder": "Enter Google Spreadsheet ID"
+  },
+  {
+    "name": "sheet_name",
+    "type": "text",
+    "label": "Sheet Name",
+    "placeholder": "Sheet1"
+  }
+]

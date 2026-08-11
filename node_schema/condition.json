@@ -1,0 +1,26 @@
+[
+  {
+    "name": "field",
+    "type": "text",
+    "label": "Field to Evaluate",
+    "placeholder": "e.g. cart.total_price"
+  },
+  {
+    "name": "operator",
+    "type": "select",
+    "label": "Comparison Operator",
+    "options": [
+      { "value": "equals", "label": "Equals (==)" },
+      { "value": "not_equals", "label": "Does Not Equal (!=)" },
+      { "value": "greater_than", "label": "Greater Than (>)" },
+      { "value": "less_than", "label": "Less Than (<)" },
+      { "value": "contains", "label": "Contains" }
+    ]
+  },
+  {
+    "name": "value",
+    "type": "text",
+    "label": "Target Value",
+    "placeholder": "e.g. 5000"
+  }
+]

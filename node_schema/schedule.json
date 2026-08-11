@@ -1,0 +1,25 @@
+[
+  {
+    "name": "frequency",
+    "type": "select",
+    "label": "Run Frequency",
+    "options": [
+      { "value": "hourly", "label": "Every Hour" },
+      {
+        "value": "daily",
+        "label": "Every Day",
+        "children": [
+          { "name": "run_time", "label": "Run Time (HH:MM)", "type": "text", "placeholder": "09:00" }
+        ]
+      },
+      { "value": "weekly", "label": "Every Week" },
+      {
+        "value": "cron",
+        "label": "Custom Cron Expression",
+        "children": [
+          { "name": "cron_expression", "label": "Cron Pattern", "type": "text", "placeholder": "0 9 * * *" }
+        ]
+      }
+    ]
+  }
+]

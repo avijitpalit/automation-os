@@ -1,0 +1,14 @@
+[
+  {
+    "name": "channel",
+    "type": "text",
+    "label": "Slack Channel / User",
+    "placeholder": "#general or @user"
+  },
+  {
+    "name": "message",
+    "type": "textarea",
+    "label": "Message Text",
+    "placeholder": "Enter message to send to Slack..."
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "recipient",
+    "type": "text",
+    "label": "Recipient Email",
+    "placeholder": "e.g. {{customer.email}} or admin@site.com"
+  },
+  {
+    "name": "subject",
+    "type": "text",
+    "label": "Email Subject",
+    "placeholder": "Enter email subject line..."
+  },
+  {
+    "name": "body",
+    "type": "textarea",
+    "label": "Email Body Content",
+    "placeholder": "Write email body message..."
+  }
+]

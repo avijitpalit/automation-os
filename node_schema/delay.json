@@ -1,0 +1,19 @@
+[
+  {
+    "name": "duration",
+    "type": "number",
+    "label": "Delay Duration",
+    "placeholder": "24"
+  },
+  {
+    "name": "unit",
+    "type": "select",
+    "label": "Time Unit",
+    "options": [
+      { "value": "seconds", "label": "Seconds" },
+      { "value": "minutes", "label": "Minutes" },
+      { "value": "hours", "label": "Hours" },
+      { "value": "days", "label": "Days" }
+    ]
+  }
+]

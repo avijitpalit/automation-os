@@ -1,0 +1,18 @@
+[
+  {
+    "name": "http_method",
+    "type": "select",
+    "label": "HTTP Method",
+    "options": [
+      { "value": "POST", "label": "POST" },
+      { "value": "GET", "label": "GET" },
+      { "value": "PUT", "label": "PUT" }
+    ]
+  },
+  {
+    "name": "secret_token",
+    "type": "text",
+    "label": "Secret Token / Key",
+    "placeholder": "Optional security token"
+  }
+]

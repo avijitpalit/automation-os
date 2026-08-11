@@ -4,42 +4,97 @@
     "type": "select",
     "label": "Trigger Type",
     "options": [
+      { "value": "post_published", "label": "Post Published" },
+      { "value": "post_updated", "label": "Post Updated" },
+      { "value": "post_deleted", "label": "Post Deleted" },
+      { "value": "page_published", "label": "Page Published" },
+      { "value": "page_updated", "label": "Page Updated" },
+      { "value": "page_deleted", "label": "Page Deleted" },
+      { "value": "user_registered", "label": "User Registered" },
+      { "value": "user_logged_in", "label": "User Logged In" },
+      { "value": "user_logged_out", "label": "User Logged Out" },
+      { "value": "plugin_activated", "label": "Plugin Activated" },
+      { "value": "plugin_deactivated", "label": "Plugin Deactivated" },
+      { "value": "theme_switched", "label": "Theme Switched" }
+    ]
+  },
+  {
+    "name": "any_or_specific",
+    "type": "select",
+    "label": "Any or Specific?",
+    "conditions": [
       {
-        "value": "post_created",
-        "label": "Post Created"
-      },
+        "field": "trigger_type",
+        "operator": "in",
+        "value": [
+          "post_published",
+          "post_updated",
+          "post_deleted",
+          "page_published",
+          "page_updated",
+          "page_deleted"
+        ]
+      }
+    ],
+    "options": [
+      { "value": "any", "label": "Any" },
+      { "value": "specific", "label": "Specific" }
+    ]
+  },
+  {
+    "name": "post_id_slug",
+    "type": "text",
+    "label": "ID or Slug",
+    "placeholder": "Enter ID or slug...",
+    "conditions": [
       {
-        "value": "post_updated",
-        "label": "Post Updated",
-        "children": [
-          {
-            "name": "any_or_specific",
-            "type": "select",
-            "label": "Any or Specific?",
-            "options": [
-              {
-                "value": "any",
-                "label": "Any Post"
-              },
-              {
-                "value": "specific",
-                "label": "Specific Post",
-                "children": [
-                  {
-                    "name": "post_id_slug",
-                    "type": "text",
-                    "label": "Post ID or Slug",
-                    "placeholder": "Enter post ID or slug here..."
-                  }
-                ]
-              }
-            ]
-          }
+        "field": "trigger_type",
+        "operator": "in",
+        "value": [
+          "post_published",
+          "post_updated",
+          "post_deleted",
+          "page_published",
+          "page_updated",
+          "page_deleted"
         ]
       },
       {
-        "value": "post_deleted",
-        "label": "Post Deleted"
+        "field": "any_or_specific",
+        "operator": "equals",
+        "value": "specific"
+      }
+    ]
+  },
+  {
+    "name": "role_filter",
+    "type": "select",
+    "label": "Filter by User Role",
+    "conditions": [
+      {
+        "field": "trigger_type",
+        "operator": "equals",
+        "value": "user_registered"
+      }
+    ],
+    "options": [
+      { "value": "any", "label": "Any Role" },
+      { "value": "subscriber", "label": "Subscriber" },
+      { "value": "customer", "label": "Customer" },
+      { "value": "editor", "label": "Editor" },
+      { "value": "administrator", "label": "Administrator" }
+    ]
+  },
+  {
+    "name": "plugin_slug",
+    "type": "text",
+    "label": "Plugin Folder/Slug (Optional)",
+    "placeholder": "e.g., woocommerce (leave blank for any)",
+    "conditions": [
+      {
+        "field": "trigger_type",
+        "operator": "in",
+        "value": ["plugin_activated", "plugin_deactivated"]
       }
     ]
   }

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "agent_name",
+    "type": "text",
+    "label": "Agent Title",
+    "placeholder": "Order Classifier Agent"
+  },
+  {
+    "name": "model",
+    "type": "select",
+    "label": "AI Model",
+    "options": [
+      { "value": "gemini-3.5-flash", "label": "Gemini 3.5 Flash" },
+      { "value": "gemini-3.5-pro", "label": "Gemini 3.5 Pro" },
+      { "value": "gpt-4o", "label": "GPT-4o" }
+    ]
+  },
+  {
+    "name": "prompt",
+    "type": "textarea",
+    "label": "System / User Prompt",
+    "placeholder": "Describe what the AI agent should extract or generate..."
+  }
+]

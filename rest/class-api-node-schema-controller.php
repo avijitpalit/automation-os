@@ -41,7 +41,7 @@ class API_Node_Schema_Controller {
         $file_path  = $schema_dir . $type . '.json';
 
         if ( ! file_exists( $file_path ) ) {
-            return new WP_Error( 'rest_schema_not_found', 'The requested node schema configuration does not exist.' . $file_path, array( 'status' => 404 ) );
+            return rest_ensure_response( array() );
         }
 
         $json_content = file_get_contents( $file_path );
