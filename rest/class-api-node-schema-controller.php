@@ -58,7 +58,7 @@ class API_Node_Schema_Controller {
 	}
 }
 
-function get_wordpress_node_schema() {
+/*function get_wordpress_node_schema() {
     return [
         [
             'key'    => 'trigger_type',
@@ -105,4 +105,4 @@ function get_wordpress_node_schema() {
             ]
         ]
     ];
-}
+}*/

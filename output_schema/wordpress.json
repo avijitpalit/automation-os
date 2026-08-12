@@ -1,0 +1,90 @@
+{
+  "post_published": [
+    { "key": "post_id", "label": "Post ID", "type": "number", "example": "1024" },
+    { "key": "post_title", "label": "Post Title", "type": "string", "example": "Getting Started with WordPress" },
+    { "key": "post_slug", "label": "Post Slug", "type": "string", "example": "getting-started-with-wordpress" },
+    { "key": "post_content", "label": "Post Content", "type": "string", "example": "<p>This is the full post content...</p>" },
+    { "key": "post_excerpt", "label": "Post Excerpt", "type": "string", "example": "A quick guide on starting with WP..." },
+    { "key": "post_url", "label": "Post URL", "type": "string", "example": "https://example.com/getting-started-with-wordpress" },
+    { "key": "author_id", "label": "Author ID", "type": "number", "example": "1" },
+    { "key": "author_email", "label": "Author Email", "type": "string", "example": "author@example.com" },
+    { "key": "featured_image_url", "label": "Featured Image URL", "type": "string", "example": "https://example.com/wp-content/uploads/cover.jpg" },
+    { "key": "publish_date", "label": "Publish Date", "type": "string", "example": "2026-08-12 10:00:00" }
+  ],
+  "post_updated": [
+    { "key": "post_id", "label": "Post ID", "type": "number", "example": "1024" },
+    { "key": "post_title", "label": "Post Title", "type": "string", "example": "Getting Started with WordPress" },
+    { "key": "post_slug", "label": "Post Slug", "type": "string", "example": "getting-started-with-wordpress" },
+    { "key": "post_content", "label": "Post Content", "type": "string", "example": "<p>Updated post content...</p>" },
+    { "key": "post_url", "label": "Post URL", "type": "string", "example": "https://example.com/getting-started-with-wordpress" },
+    { "key": "author_email", "label": "Author Email", "type": "string", "example": "author@example.com" },
+    { "key": "modified_date", "label": "Modified Date", "type": "string", "example": "2026-08-12 14:30:00" }
+  ],
+  "post_deleted": [
+    { "key": "post_id", "label": "Post ID", "type": "number", "example": "1024" },
+    { "key": "post_title", "label": "Post Title", "type": "string", "example": "Old Draft Post" },
+    { "key": "post_type", "label": "Post Type", "type": "string", "example": "post" },
+    { "key": "deleted_at", "label": "Deleted Timestamp", "type": "string", "example": "2026-08-12 15:00:00" }
+  ],
+  "page_published": [
+    { "key": "page_id", "label": "Page ID", "type": "number", "example": "42" },
+    { "key": "page_title", "label": "Page Title", "type": "string", "example": "About Us" },
+    { "key": "page_slug", "label": "Page Slug", "type": "string", "example": "about-us" },
+    { "key": "page_content", "label": "Page Content", "type": "string", "example": "<p>Learn more about our team...</p>" },
+    { "key": "page_url", "label": "Page URL", "type": "string", "example": "https://example.com/about-us" },
+    { "key": "author_email", "label": "Author Email", "type": "string", "example": "admin@example.com" },
+    { "key": "publish_date", "label": "Publish Date", "type": "string", "example": "2026-08-12 11:00:00" }
+  ],
+  "page_updated": [
+    { "key": "page_id", "label": "Page ID", "type": "number", "example": "42" },
+    { "key": "page_title", "label": "Page Title", "type": "string", "example": "About Us" },
+    { "key": "page_slug", "label": "Page Slug", "type": "string", "example": "about-us" },
+    { "key": "page_content", "label": "Page Content", "type": "string", "example": "<p>Updated team description...</p>" },
+    { "key": "page_url", "label": "Page URL", "type": "string", "example": "https://example.com/about-us" },
+    { "key": "modified_date", "label": "Modified Date", "type": "string", "example": "2026-08-12 16:15:00" }
+  ],
+  "page_deleted": [
+    { "key": "page_id", "label": "Page ID", "type": "number", "example": "42" },
+    { "key": "page_title", "label": "Page Title", "type": "string", "example": "Old Landing Page" },
+    { "key": "deleted_at", "label": "Deleted Timestamp", "type": "string", "example": "2026-08-12 17:00:00" }
+  ],
+  "user_registered": [
+    { "key": "user_id", "label": "User ID", "type": "number", "example": "88" },
+    { "key": "username", "label": "Username", "type": "string", "example": "johndoe" },
+    { "key": "user_email", "label": "User Email", "type": "string", "example": "john@example.com" },
+    { "key": "first_name", "label": "First Name", "type": "string", "example": "John" },
+    { "key": "last_name", "label": "Last Name", "type": "string", "example": "Doe" },
+    { "key": "user_role", "label": "User Role", "type": "string", "example": "subscriber" },
+    { "key": "registered_at", "label": "Registration Timestamp", "type": "string", "example": "2026-08-12 18:00:00" }
+  ],
+  "user_logged_in": [
+    { "key": "user_id", "label": "User ID", "type": "number", "example": "88" },
+    { "key": "username", "label": "Username", "type": "string", "example": "johndoe" },
+    { "key": "user_email", "label": "User Email", "type": "string", "example": "john@example.com" },
+    { "key": "user_role", "label": "User Role", "type": "string", "example": "subscriber" },
+    { "key": "login_time", "label": "Login Timestamp", "type": "string", "example": "2026-08-12 18:45:10" }
+  ],
+  "user_logged_out": [
+    { "key": "user_id", "label": "User ID", "type": "number", "example": "88" },
+    { "key": "username", "label": "Username", "type": "string", "example": "johndoe" },
+    { "key": "user_email", "label": "User Email", "type": "string", "example": "john@example.com" },
+    { "key": "logout_time", "label": "Logout Timestamp", "type": "string", "example": "2026-08-12 19:20:00" }
+  ],
+  "plugin_activated": [
+    { "key": "plugin_name", "label": "Plugin Name", "type": "string", "example": "WooCommerce" },
+    { "key": "plugin_slug", "label": "Plugin Slug", "type": "string", "example": "woocommerce/woocommerce.php" },
+    { "key": "version", "label": "Version", "type": "string", "example": "8.9.0" },
+    { "key": "activated_at", "label": "Activated Timestamp", "type": "string", "example": "2026-08-12 12:00:00" }
+  ],
+  "plugin_deactivated": [
+    { "key": "plugin_name", "label": "Plugin Name", "type": "string", "example": "WooCommerce" },
+    { "key": "plugin_slug", "label": "Plugin Slug", "type": "string", "example": "woocommerce/woocommerce.php" },
+    { "key": "deactivated_at", "label": "Deactivated Timestamp", "type": "string", "example": "2026-08-12 13:00:00" }
+  ],
+  "theme_switched": [
+    { "key": "new_theme_name", "label": "New Theme Name", "type": "string", "example": "Twenty Twenty-Six" },
+    { "key": "new_theme_slug", "label": "New Theme Slug", "type": "string", "example": "twentytwentysix" },
+    { "key": "old_theme_name", "label": "Old Theme Name", "type": "string", "example": "Astra" },
+    { "key": "switched_at", "label": "Switched Timestamp", "type": "string", "example": "2026-08-12 14:00:00" }
+  ]
+}

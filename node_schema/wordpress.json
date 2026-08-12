@@ -19,33 +19,11 @@
     ]
   },
   {
-    "name": "any_or_specific",
-    "type": "select",
-    "label": "Any or Specific?",
-    "conditions": [
-      {
-        "field": "trigger_type",
-        "operator": "in",
-        "value": [
-          "post_published",
-          "post_updated",
-          "post_deleted",
-          "page_published",
-          "page_updated",
-          "page_deleted"
-        ]
-      }
-    ],
-    "options": [
-      { "value": "any", "label": "Any" },
-      { "value": "specific", "label": "Specific" }
-    ]
-  },
-  {
     "name": "post_id_slug",
     "type": "text",
-    "label": "ID or Slug",
-    "placeholder": "Enter ID or slug...",
+    "label": "IDs or Slugs",
+    "placeholder": "Enter IDs or slugs (keep empty to target any post)...",
+    "help": "Use IDs or slugs by comma seperated. Keep it empty to target any post. Using IDs and Slugs at the same time. For example:- \"23, post-slug, 28\" is valid",
     "conditions": [
       {
         "field": "trigger_type",
@@ -58,11 +36,6 @@
           "page_updated",
           "page_deleted"
         ]
-      },
-      {
-        "field": "any_or_specific",
-        "operator": "equals",
-        "value": "specific"
       }
     ]
   },
