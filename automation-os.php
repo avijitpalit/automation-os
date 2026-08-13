@@ -16,9 +16,11 @@ define( 'AOS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AOS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'AOS_VERSION', '1.0.0' );
 
-# Endpoints - Node schema
+# Endpoint - Node schema
 require_once AOS_PLUGIN_DIR . 'rest/class-api-node-schema-controller.php';
 new API_Node_Schema_Controller();
+# Endpoint - Output schema
+require_once AOS_PLUGIN_DIR . 'rest/class-api-output-schema-controller.php';
 # Workflow engine
 require_once AOS_PLUGIN_DIR . 'class-workflow-engine.php';
 

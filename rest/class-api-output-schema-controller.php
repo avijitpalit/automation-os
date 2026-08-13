@@ -76,3 +76,5 @@ class API_Node_Output_Schema_Controller {
 		return rest_ensure_response( $schema_data );
 	}
 }
+
+new API_Node_Output_Schema_Controller();
