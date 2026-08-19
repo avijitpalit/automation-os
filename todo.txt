@@ -1,0 +1,51 @@
+THIS WEEK
+──────────────
+Target: Finish workflow persistence
+
+Thursday  → Frequent triggers for wordpress node, disable the rest
+Friday    → 
+
+
+
+AUTOMATION OS — V1
+Target: September 30, 2026
+
+[*] MILESTONE 1 — Foundation
+    [*] Workflow database
+    [*] Save workflow
+    [*] Load workflow
+    [*] Delete workflow
+
+[*] MILESTONE 2 — Workflow Builder
+    [*] Add nodes
+    [*] Connect nodes
+    [*] Delete nodes
+    [*] Drag/drop
+
+[*] Core engine development
+
+[ ] MILESTONE 3 — Triggers
+    [ ] WordPress & others
+    [ ] Schedule
+    [ ] Webhook
+
+[ ] MILESTONE 4 — Actions
+    [ ] Email
+    [ ] HTTP Request
+    [ ] Google Sheets
+    [ ] Slack & others
+
+[ ] MILESTONE 5 — Execution
+    [ ] Execute workflow
+    [ ] Handle errors
+    [ ] Execution logs
+
+[ ] MILESTONE 6 — Manual node creation using AI
+
+[ ] MILESTONE 7 — Release
+    [ ] Security audit
+    [ ] Performance testing
+    [ ] Plugin settings
+    [ ] Documentation
+    [ ] Packaging
+    [ ] Beta testing

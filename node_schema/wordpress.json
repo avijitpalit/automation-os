@@ -29,7 +29,6 @@
         "field": "trigger_type",
         "operator": "in",
         "value": [
-          "post_published",
           "post_updated",
           "post_deleted",
           "page_published",

@@ -269,14 +269,24 @@ class Workflow_Engine {
 
         switch ($node_type) {
             case 'email':
-				error_log('Send email: ' . sprintf("recipient: %s, subject: %s, body: %s", $node['data']['recipient'], $node['data']['subject'], $node['data']['body']));
+				send_mail($node['data'], $payload);
                 // wp_mail($to, 'Workflow Triggered', json_encode($payload));
                 break;
             case 'google-sheets':
-                // Append row to Google Sheets via API
+                error_log('Add row to google sheet');
                 break;
         }
     }
 }
 
 new Workflow_Engine();
+
+// Send mail
+function send_mail($node_data, $payload) {
+    $search = array_map(fn($key) => "{" . $key . "}", array_keys($payload));
+    $subject = $node_data['subject'];
+    $parsed_subject = str_replace($search, array_values($payload), $subject);
+    $body = $node_data['body'];
+    $parsed_body = str_replace($search, array_values($payload), $body);
+    error_log('Send email: ' . sprintf("recipient: %s, subject: %s, body: %s", $node_data['recipient'], $parsed_subject, $parsed_body));
+}
