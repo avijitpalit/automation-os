@@ -4,18 +4,21 @@
     "type": "select",
     "label": "Trigger Type",
     "options": [
-      { "value": "post_published", "label": "Post Published" },
-      { "value": "post_updated", "label": "Post Updated" },
-      { "value": "post_deleted", "label": "Post Deleted" },
-      { "value": "page_published", "label": "Page Published" },
-      { "value": "page_updated", "label": "Page Updated" },
-      { "value": "page_deleted", "label": "Page Deleted" },
-      { "value": "user_registered", "label": "User Registered" },
-      { "value": "user_logged_in", "label": "User Logged In" },
-      { "value": "user_logged_out", "label": "User Logged Out" },
-      { "value": "plugin_activated", "label": "Plugin Activated" },
-      { "value": "plugin_deactivated", "label": "Plugin Deactivated" },
-      { "value": "theme_switched", "label": "Theme Switched" }
+      { "value": "post_published", "label": "Post Published", "group": "Post Actions" },
+      { "value": "post_updated", "label": "Post Updated", "group": "Post Actions" },
+      { "value": "post_deleted", "label": "Post Deleted", "group": "Post Actions" },
+
+      { "value": "page_published", "label": "Page Published", "group": "Page Actions" },
+      { "value": "page_updated", "label": "Page Updated", "group": "Page Actions" },
+      { "value": "page_deleted", "label": "Page Deleted", "group": "Page Actions" },
+
+      { "value": "user_registered", "label": "User Registered", "group": "User Actions" },
+      { "value": "user_logged_in", "label": "User Logged In", "group": "User Actions" },
+      { "value": "user_logged_out", "label": "User Logged Out", "group": "User Actions" },
+
+      { "value": "plugin_activated", "label": "Plugin Activated", "group": "System Actions" },
+      { "value": "plugin_deactivated", "label": "Plugin Deactivated", "group": "System Actions" },
+      { "value": "theme_switched", "label": "Theme Switched", "group": "System Actions" }
     ]
   },
   {

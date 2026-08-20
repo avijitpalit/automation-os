@@ -2,8 +2,8 @@ THIS WEEK
 ──────────────
 Target: Finish workflow persistence
 
-Thursday  → Frequent triggers for wordpress node, disable the rest
-Friday    → 
+Thursday  → Frequent triggers for wordpress node, disable the rest. Undo/redo. Separator in trigger_type. Click to copy output. Remove delete icon in properties panel.
+Friday    → Custom post type triggers if available (disable). What do if woo or form plugins not installed? What other nodes can I add for trigger (add them)?
 
 
 
@@ -21,6 +21,14 @@ Target: September 30, 2026
     [*] Connect nodes
     [*] Delete nodes
     [*] Drag/drop
+    [*] Undo/redo functionality
+    [*] Seperators in trigger_type dropdown
+    [ ] Custom post type triggers if available (disable)
+    [ ] Click to copy output
+    [ ] Remove delete icon in properties panel
+    [ ] What do if woo or form plugins not installed?
+    [ ] What other nodes can I add for trigger?
+    [ ] if not saved, prevent reload
 
 [*] Core engine development
 
@@ -39,6 +47,11 @@ Target: September 30, 2026
     [ ] Execute workflow
     [ ] Handle errors
     [ ] Execution logs
+
+[ ] Testing and finalize the UI
+    [ ] What buttons do we need?
+    [ ] What can we show on bottom right corner?
+    [ ] Do we really need version feature in first release?
 
 [ ] MILESTONE 6 — Manual node creation using AI
 
